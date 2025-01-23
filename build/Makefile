@@ -36,7 +36,7 @@ $(out)/kernel.o: $(kernel_src)
 	$(CC) $(CCFLAGS) $< -o $@
 
 clean:
-	rm -rf $(build)
+	rm -rf $(build)/out
 
 iso: build
 	@mkdir -p $(iso)/boot
