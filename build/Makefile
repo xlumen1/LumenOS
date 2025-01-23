@@ -4,7 +4,7 @@ CC := gcc
 AS := as
 LD := ld
 
-CCFLAGS := -m32 --static -ffreestanding -c
+CCFLAGS := -m32 --static -ffreestanding -c -g
 LDFLAGS := -m elf_i386 -T linker.ld -static -nostdlib
 
 kernel := ../src/kernel
@@ -45,3 +45,6 @@ iso: build
 
 run: build
 	qemu-system-i386 --kernel $(build)/kernel.bin
+
+debug: 
+	qemu-system-i386 -s -S --kernel $(build)/kernel.bin
