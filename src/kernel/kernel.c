@@ -1,5 +1,5 @@
+#include "libk/vga/vga.h"
 void kmain() {
-    char* terminal_buffer = (char*) 0xB8000;
-    terminal_buffer[0] = 'A';
-    terminal_buffer[1] = 15;
+    vga_clear();
+    vga_put('A', VGA_COLOR(VGA_WHITE, VGA_BLACK), 0, 0);
 }

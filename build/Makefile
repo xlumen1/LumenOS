@@ -1,29 +1,51 @@
 .PHONY: build clean iso run
 
+CC := gcc
+AS := as
+LD := ld
+
 CCFLAGS := -m32 --static -ffreestanding -c
 LDFLAGS := -m elf_i386 -T linker.ld -static -nostdlib
 
 kernel := ../src/kernel
-build := .
-out := out
-iso := iso/
+libk := $(kernel)/libk
+build := build
+out := $(build)/out
+iso := iso
 
+# Find all .c files in libk and subdirectories
+libk_src := $(wildcard $(libk)/**/*.c)
+libk_objs := $(patsubst $(libk)/%.c,$(out)/libk/%.o,$(libk_src))
 
+# Add kernel source files and objects
+kernel_src := $(kernel)/kernel.c
+kernel_objs := $(out)/kernel.o
 
-build:
-	mkdir -p $(out)
-	$(AS) --32 $(kernel)/boot.s -o $(out)/boot.o
-	$(CC) $(CCFLAGS) $(kernel)/kernel.c -o $(out)/kernel.o
-	$(LD) $(LDFLAGS) -o $(build)/kernel.bin $(out)/boot.o $(out)/kernel.o
-	$(MAKE) clean
+all_objs := $(out)/boot.o $(kernel_objs) $(libk_objs)
+
+build: $(all_objs)
+	@mkdir -p $(build)
+	$(LD) $(LDFLAGS) -o $(build)/kernel.bin $(all_objs)
+
+# Rule for compiling libk .c files
+$(out)/libk/%.o: $(libk)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CCFLAGS) $< -o $@
+
+$(out)/boot.o: $(kernel)/boot.s
+	@mkdir -p $(out)
+	$(AS) --32 $< -o $@
+
+$(out)/kernel.o: $(kernel_src)
+	$(CC) $(CCFLAGS) $< -o $@
 
 clean:
-	rm -f $(out)/*.o
-	rmdir $(out)
+	rm -rf $(build)
 
 iso: build
+	@mkdir -p $(iso)/boot
 	cp $(build)/kernel.bin $(iso)/boot/kernel.bin
-	grub-mkrescue -o $(build)/os.iso iso
+	grub-mkrescue -o $(build)/os.iso $(iso)
 
-run:
-	qemu-system-i386 --kernel kernel.bin
+run: build
+	qemu-system-i386 --kernel $(build)/kernel.bin
