@@ -4,9 +4,5 @@
 
 void kmain() {
     vga_clear();
-    vga_put('L', DEFCOL);
-    vga_put('u', DEFCOL);
-    vga_put('m', DEFCOL);
-    vga_put('e', DEFCOL);
-    vga_put('n', DEFCOL);
+    vga_write("Lumen OS", DEFCOL, 8);
 }
