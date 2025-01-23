@@ -4,7 +4,7 @@
 
 void kmain() {
     vga_clear();
-    for (char i = 0; i < 256; i++) {
-        vga_put((char)i, DEFCOL);
+    for (unsigned char x = 0; x < 128; x++) {
+        vga_put(x, DEFCOL);
     }
 }

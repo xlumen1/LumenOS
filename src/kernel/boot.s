@@ -24,3 +24,4 @@ call kmain
 
 cli
 hlt
+jmp .
