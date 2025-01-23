@@ -9,25 +9,21 @@ LDFLAGS := -m elf_i386 -T linker.ld -static -nostdlib
 
 kernel := ../src/kernel
 libk := $(kernel)/libk
-build := build
+build := .
 out := $(build)/out
 iso := iso
 
-# Find all .c files in libk and subdirectories
 libk_src := $(wildcard $(libk)/**/*.c)
 libk_objs := $(patsubst $(libk)/%.c,$(out)/libk/%.o,$(libk_src))
 
-# Add kernel source files and objects
 kernel_src := $(kernel)/kernel.c
 kernel_objs := $(out)/kernel.o
 
 all_objs := $(out)/boot.o $(kernel_objs) $(libk_objs)
 
 build: $(all_objs)
-	@mkdir -p $(build)
 	$(LD) $(LDFLAGS) -o $(build)/kernel.bin $(all_objs)
 
-# Rule for compiling libk .c files
 $(out)/libk/%.o: $(libk)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) $< -o $@
