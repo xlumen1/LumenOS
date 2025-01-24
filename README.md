@@ -2,12 +2,12 @@
 Open Source Hobby Operating System, What More Would You Want?
 
 ## Dependencies
-- GCC
-- BINUTILS
-- GRUB-PC-BIN
-- XORRISO
-- QEMU
-- MTOOLS
+- gcc
+- binutils
+- grub-pc-bin
+- xorriso
+- qemu-system-x86
+- mtools
 
 ## To Build
 Just Building kernel.bin
