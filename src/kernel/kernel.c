@@ -14,7 +14,8 @@ void kmain() {
     vga_put(']', HEADERCOL);
     for (unsigned char i = 0; i < (VGA_WIDTH / 2) + 5 - strlen(txt); i++)
         vga_put('=', HEADERCOL);
-    vga_row = 1;
-    vga_col = 0;
+    vga_pos(0, 1);
     vga_print("Something Something Startup Info...", DEFCOL);
+    vga_pos(0, 2);
+    vga_error("Not Actually An Error, Just A Test!");
 }
