@@ -5,8 +5,8 @@
 
 void kmain() {
     vga_clear();
-    vga_write("Lumen OS", DEFCOL, 8);
+    vga_print("Lumen OS", DEFCOL);
     vga_col = 0;
     vga_row = 1;
-    vga_write(itoa(42, 10), DEFCOL, 2);
+    vga_print(itoa(42, 10), DEFCOL);
 }
