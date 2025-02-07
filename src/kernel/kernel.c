@@ -4,6 +4,8 @@
 #define DEFCOL VGA_COLOR(VGA_WHITE, VGA_BLUE)
 #define HEADERCOL VGA_COLOR(VGA_BLUE, VGA_WHITE)
 
+#define KERNEL_VERSION "v0.0.2-prototype"
+
 void kmain() {
     vga_clear(DEFCOL);
     char* txt = "Lumen Kernel";
@@ -17,5 +19,5 @@ void kmain() {
     vga_pos(0, 1);
     vga_print("Something Something Startup Info...", DEFCOL);
     vga_pos(0, 2);
-    vga_error("Not Actually An Error, Just A Test!");
+    vga_print(KERNEL_VERSION, DEFCOL);
 }
