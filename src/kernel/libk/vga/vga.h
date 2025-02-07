@@ -30,6 +30,7 @@ extern short vga_col;
 
 // FUNCTIONS
 
+void vga_pos(unsigned char col, unsigned char row);
 void vga_set(char a, unsigned char color, unsigned char col, unsigned char row);
 void vga_put(char a, unsigned char color);
 void vga_write(char* a, unsigned char color, unsigned short length);
