@@ -36,7 +36,7 @@ $(out)/boot.o: $(kernel)/boot.s
 	$(AS) --32 $< -o $@
 
 $(out)/libk/util/%.o: $(libk)/util/%.s
-	@mkdir -p $(out)
+	@mkdir -p $(out)/libk/util
 	$(AS) --32 $< -o $@
 
 $(out)/kernel.o: $(kernel_src)

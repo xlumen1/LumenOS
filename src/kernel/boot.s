@@ -21,6 +21,7 @@ _start:
 mov $stack_top, %esp
 
 cli
+
 call kmain
 
 cli
