@@ -20,4 +20,6 @@ void kmain() {
     vga_print("Something Something Startup Info...", DEFCOL);
     vga_pos(0, 2);
     vga_print(KERNEL_VERSION, DEFCOL);
+    outb(0x3D4, 0x0A);
+	outb(0x3D5, 0x20);
 }
