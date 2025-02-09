@@ -1,5 +1,6 @@
 #include "libk/vga/vga.h"
 #include "libk/util/util.h"
+#include "libk/buffer/buffer.h"
 
 #define DEFCOL VGA_COLOR(VGA_WHITE, VGA_BLUE)
 #define HEADERCOL VGA_COLOR(VGA_BLUE, VGA_WHITE)

@@ -1,3 +1,6 @@
+#ifndef VGA_H
+#define VGA_H
+
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
 #define VGA_ADDRESS (short*)0xB8000
@@ -37,3 +40,4 @@ void vga_write(char* a, unsigned char color, unsigned short length);
 void vga_print(char* a, unsigned char color);
 void vga_error(char* a);
 void vga_clear(unsigned char color);
+#endif
