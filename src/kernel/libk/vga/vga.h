@@ -47,6 +47,8 @@ void vga_write(char* a, unsigned char color, unsigned short length);
 void vga_print(char* a, unsigned char color);
 void vga_error(char* a);
 void vga_clear(unsigned char color);
+void vga_newline();
 
 short*vga_string(char* a, unsigned char color);
+
 #endif
