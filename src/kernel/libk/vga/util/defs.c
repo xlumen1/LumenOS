@@ -1,4 +1,4 @@
-#include "vga.h"
+#include "../vga.h"
 
 tbuffer_t vga_buffer;
 short vga_row = 0;

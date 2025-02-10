@@ -36,19 +36,19 @@ extern tbuffer_t vga_buffer;
 extern short vga_row;
 extern short vga_col;
 
-// FUNCTIONS
+// UTIL FUNCTIONS
 
 void vga_init();
-
 void vga_pos(unsigned char col, unsigned char row);
+void vga_newline();
+void vga_clear(unsigned char color);
+
+// TEXT FUNCTIONS
+
 void vga_set(char a, unsigned char color, unsigned char col, unsigned char row);
 void vga_put(char a, unsigned char color);
 void vga_write(char* a, unsigned char color, unsigned short length);
 void vga_print(char* a, unsigned char color);
 void vga_error(char* a);
-void vga_clear(unsigned char color);
-void vga_newline();
-
-short*vga_string(char* a, unsigned char color);
 
 #endif

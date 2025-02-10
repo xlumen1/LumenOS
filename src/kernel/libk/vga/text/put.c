@@ -1,5 +1,6 @@
-#include "vga.h"
+#include "../vga.h"
 
+// Append a character to the VGA buffer
 void vga_put(char a, unsigned char color) {
     vga_set(a, color, vga_col, vga_row);
     if (++vga_col >= VGA_WIDTH) {
