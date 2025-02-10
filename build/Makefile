@@ -19,13 +19,16 @@ libk_objs := $(patsubst $(libk)/%.c,$(out)/libk/%.o,$(libk_src))
 vga_src := $(wildcard $(libk)/vga/**/*.c)
 vga_objs := $(patsubst $(libk)/vga/%.c,$(out)/libk/vga/%.o,$(vga_src))
 
+gdt_src := $(wildcard $(kernel)/gdt/*.c)
+gdt_objs := $(patsubst $(kernel)/gdt/%.c,$(out)/gdt/%.o,$(gdt_src))
+
 libk_a_src := $(wildcard $(libk)/**/*.s)
 libk_a_objs := $(patsubst $(libk)/%.s,$(out)/libk/%.o,$(libk_a_src))
 
 kernel_src := $(kernel)/kernel.c
 kernel_objs := $(out)/kernel.o
 
-all_objs := $(out)/boot.o $(kernel_objs) $(libk_objs) $(libk_a_objs) $(vga_objs)
+all_objs := $(out)/boot.o $(kernel_objs) $(libk_objs) $(libk_a_objs) $(vga_objs) $(gdt_objs)
 
 build: $(all_objs)
 	$(LD) $(LDFLAGS) -o $(build)/kernel.bin $(all_objs)
@@ -43,6 +46,10 @@ $(out)/libk/util/%.o: $(libk)/util/%.s
 	$(AS) --32 $< -o $@
 
 $(out)/libk/vga/%.o: $(libk)/vga/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CCFLAGS) $< -o $@
+
+$(out)/gdt/%.o: $(kernel)/gdt/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) $< -o $@
 
