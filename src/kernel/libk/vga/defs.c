@@ -1,5 +1,5 @@
 #include "vga.h"
 
-short* vga_buffer = VGA_ADDRESS;
+tbuffer_t vga_buffer;
 short vga_row = 0;
 short vga_col = 0;

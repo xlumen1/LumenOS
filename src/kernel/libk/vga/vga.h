@@ -1,3 +1,6 @@
+#include "../util/util.h"
+#include "../buffer/buffer.h"
+
 #ifndef VGA_H
 #define VGA_H
 
@@ -6,6 +9,8 @@
 #define VGA_ADDRESS (short*)0xB8000
 
 #define VGA_COLOR(fg, bg) ((unsigned char)(fg | bg << 4))
+
+#define VGA_CHAR(a, color) ((short) a | (short) color << 8)
 
 // COLORS
 #define VGA_BLACK 0
@@ -27,11 +32,13 @@
 
 // VARIABLES
 
-extern short* vga_buffer;
+extern tbuffer_t vga_buffer;
 extern short vga_row;
 extern short vga_col;
 
 // FUNCTIONS
+
+void vga_init();
 
 void vga_pos(unsigned char col, unsigned char row);
 void vga_set(char a, unsigned char color, unsigned char col, unsigned char row);
@@ -40,4 +47,6 @@ void vga_write(char* a, unsigned char color, unsigned short length);
 void vga_print(char* a, unsigned char color);
 void vga_error(char* a);
 void vga_clear(unsigned char color);
+
+short*vga_string(char* a, unsigned char color);
 #endif
