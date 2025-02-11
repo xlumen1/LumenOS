@@ -11,6 +11,13 @@ struct GDT
     unsigned char flags;
 };
 
+struct GDTR
+{
+    unsigned char size;
+    unsigned int offset;
+};
+
+
 void gdt_encode(unsigned char* target, struct GDT source);
 
 #endif
