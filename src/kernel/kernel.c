@@ -58,14 +58,14 @@ void kmain()
                 vga_put('0', HEADERCOL);
         }
         vga_print(itoa(t.hour, 10), HEADERCOL);
-        vga_put(':', VGA_COLOR(VGA_BLUE, VGA_WHITE));
+        vga_put(':', HEADERCOL);
         if (t.minute < 10) {
             vga_put('0', HEADERCOL);
             if (t.minute == 0)
                 vga_put('0', HEADERCOL);
         }
         vga_print(itoa(t.minute, 10), HEADERCOL);
-        vga_put(':', VGA_COLOR(VGA_BLUE, VGA_WHITE));
+        vga_put(':', HEADERCOL);
         if (t.second < 10) {
             vga_put('0', HEADERCOL);
             if (t.second == 0)
