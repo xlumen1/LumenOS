@@ -52,12 +52,12 @@ void kmain()
             vga_put('0', HEADERCOL);
         vga_print(itoa(t.year, 10), HEADERCOL);
         vga_pos(21, 0);
-        if (t.hour - 5 < 10) {
+        if (t.hour < 10) {
             vga_put('0', HEADERCOL);
             if (t.hour == 0)
                 vga_put('0', HEADERCOL);
         }
-        vga_print(itoa(t.hour - 5, 10), HEADERCOL);
+        vga_print(itoa(t.hour, 10), HEADERCOL);
         vga_put(':', VGA_COLOR(VGA_BLUE, VGA_WHITE));
         if (t.minute < 10) {
             vga_put('0', HEADERCOL);
