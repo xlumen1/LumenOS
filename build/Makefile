@@ -7,72 +7,41 @@ LD := ld
 CCFLAGS := -m32 --static -ffreestanding -c -g
 LDFLAGS := -m elf_i386 -T linker.ld -static -nostdlib
 
-kernel := ../src/kernel
-libk := $(kernel)/libk
-build := .
-out := $(build)/out
-iso := iso
+KERNEL := ../src/kernel
+LIBK := $(kernel)/libk
+BUILD := .
+OUT := $(BUILD)/out
+ISO := iso
 
-libk_src := $(wildcard $(libk)/**/*.c)
-libk_objs := $(patsubst $(libk)/%.c,$(out)/libk/%.o,$(libk_src))
+C_SRC := $(wildcard $(KERNEL)/**/*.c)
+C_OBJ := $(patsubst $(KERNEL)/%.c,$(OUT)/%.o,$(C_SRC))
 
-vga_src := $(wildcard $(libk)/vga/**/*.c)
-vga_objs := $(patsubst $(libk)/vga/%.c,$(out)/libk/vga/%.o,$(vga_src))
+S_SRC := $(wildcard $(KERNEL)/**/*.s)
+S_OBJ := $(patsubst $(KERNEL)/%.s,$(OUT)/%.o,$(S_SRC))
 
-gdt_src := $(wildcard $(kernel)/gdt/*.c)
-gdt_objs := $(patsubst $(kernel)/gdt/%.c,$(out)/gdt/%.o,$(gdt_src))
+ALL_OBJ := $(C_OBJ) $(S_OBJ)
 
-time_src := $(wildcard $(libk)/time/*.c)
-time_objs := $(patsubst $(libk)/time/%.c,$(out)/libk/time/%.o,$(time_src))
+build: $(ALL_OBJ)
+	$(LD) $(LDFLAGS) -o $(BUILD)/kernel.bin $(ALL_OBJ)
 
-libk_a_src := $(wildcard $(libk)/**/*.s)
-libk_a_objs := $(patsubst $(libk)/%.s,$(out)/libk/%.o,$(libk_a_src))
-
-kernel_src := $(kernel)/kernel.c
-kernel_objs := $(out)/kernel.o
-
-all_objs := $(out)/boot.o $(kernel_objs) $(libk_objs) $(libk_a_objs) $(gdt_objs) $(vga_objs)
-
-build: $(all_objs)
-	$(LD) $(LDFLAGS) -o $(build)/kernel.bin $(all_objs)
-
-$(out)/libk/%.o: $(libk)/%.c
+$(C_OBJ): $(C_SRC)
 	@mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) $< -o $@
 
-$(out)/boot.o: $(kernel)/boot.s
-	@mkdir -p $(out)
+$(S_OBJ): $(S_SRC)
+	@mkdir -p $(OUT)
 	$(AS) --32 $< -o $@
-
-$(out)/libk/util/%.o: $(libk)/util/%.s
-	@mkdir -p $(dir $@)
-	$(AS) --32 $< -o $@
-
-$(out)/libk/vga/%.o: $(libk)/vga/%.c
-	@mkdir -p $(dir $@)
-	$(CC) $(CCFLAGS) $< -o $@
-
-$(out)/gdt/%.o: $(kernel)/gdt/%.c
-	@mkdir -p $(dir $@)
-	$(CC) $(CCFLAGS) $< -o $@
-
-$(out)/libk/time/%.o: $(libk)/time/%.c
-	@mkdir -p $(dir $@)
-	$(CC) $(CCFLAGS) $< -o $@
-
-$(out)/kernel.o: $(kernel_src)
-	$(CC) $(CCFLAGS) $< -o $@
 
 clean:
-	rm -fr $(build)/out
+	rm -fr $(OUT)
 
 iso: build
-	@mkdir -p $(iso)/boot
-	cp $(build)/kernel.bin $(iso)/boot/kernel.bin
-	grub-mkrescue -o $(build)/os.iso $(iso)
+	@mkdir -p $(ISO)/boot
+	cp $(BUILD)/kernel.bin $(ISO)/boot/kernel.bin
+	grub-mkrescue -o $(BUILD)/os.iso $(ISO)
 
 run: build
-	qemu-system-i386 --kernel $(build)/kernel.bin
+	qemu-system-i386 --kernel $(BUILD)/kernel.bin
 
 debug: 
-	qemu-system-i386 -s -S --kernel $(build)/kernel.bin
+	qemu-system-i386 -s -S --kernel $(BUILD)/kernel.bin
