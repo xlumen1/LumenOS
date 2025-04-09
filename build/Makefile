@@ -1,47 +1,66 @@
-.PHONY: build clean iso run
+.PHONY: build clean iso run debug
 
+# Compiler and tools
 CC := gcc
 AS := as
 LD := ld
 
+# Flags
 CCFLAGS := -m32 --static -ffreestanding -c -g
 LDFLAGS := -m elf_i386 -T linker.ld -static -nostdlib
 
+# Directories
 KERNEL := ../src/kernel
-LIBK := $(kernel)/libk
 BUILD := .
 OUT := $(BUILD)/out
-ISO := iso
+ISO := $(BUILD)/iso
 
-C_SRC := $(wildcard $(KERNEL)/**/*.c)
+# Source files
+C_SRC := $(shell find $(KERNEL) -type f -name "*.c")
+S_SRC := $(shell find $(KERNEL) -type f -name "*.s")
+
+# Object files
 C_OBJ := $(patsubst $(KERNEL)/%.c,$(OUT)/%.o,$(C_SRC))
-
-S_SRC := $(wildcard $(KERNEL)/**/*.s)
 S_OBJ := $(patsubst $(KERNEL)/%.s,$(OUT)/%.o,$(S_SRC))
 
+# All objects
 ALL_OBJ := $(C_OBJ) $(S_OBJ)
 
+# Build kernel
 build: $(ALL_OBJ)
+	@echo "Linking kernel..."
 	$(LD) $(LDFLAGS) -o $(BUILD)/kernel.bin $(ALL_OBJ)
 
-$(C_OBJ): $(C_SRC)
+# Compile C source files
+$(OUT)/%.o: $(KERNEL)/%.c
 	@mkdir -p $(dir $@)
+	@echo "Compiling $<..."
 	$(CC) $(CCFLAGS) $< -o $@
 
-$(S_OBJ): $(S_SRC)
-	@mkdir -p $(OUT)
+# Assemble assembly source files
+$(OUT)/%.o: $(KERNEL)/%.s
+	@mkdir -p $(dir $@)
+	@echo "Assembling $<..."
 	$(AS) --32 $< -o $@
 
+# Clean build artifacts
 clean:
-	rm -fr $(OUT)
+	@echo "Cleaning build artifacts..."
+	rm -fr $(OUT) $(BUILD)/kernel.bin $(BUILD)/os.iso $(ISO)
 
+# Build ISO
 iso: build
-	@mkdir -p $(ISO)/boot
+	@echo "Creating ISO..."
+	@mkdir -p $(ISO)/boot/grub
 	cp $(BUILD)/kernel.bin $(ISO)/boot/kernel.bin
 	grub-mkrescue -o $(BUILD)/os.iso $(ISO)
 
+# Run kernel in QEMU
 run: build
+	@echo "Running kernel in QEMU..."
 	qemu-system-i386 --kernel $(BUILD)/kernel.bin
 
-debug: 
+# Debug kernel in QEMU
+debug: build
+	@echo "Debugging kernel in QEMU..."
 	qemu-system-i386 -s -S --kernel $(BUILD)/kernel.bin
