@@ -13,23 +13,29 @@ void kmain()
 {
     vga_init();
     vga_clear(DEFCOL);
-    /*char *txt = "Lumen Kernel";
-    for (unsigned char i = 0; i < (VGA_WIDTH / 2) + 5 - strlen(txt); i++)
-        vga_put('=', HEADERCOL);
-    vga_put('[', HEADERCOL);
-    vga_print(txt, HEADERCOL);
-    vga_put(']', HEADERCOL);
-    for (unsigned char i = 0; i < (VGA_WIDTH / 2) + 5 - strlen(txt); i++)
-        vga_put('=', HEADERCOL);*/
+
     vga_print("=================================[Lumen Kernel]=================================", HEADERCOL);
-    vga_pos(0, 4);
-    gdt_encode((unsigned char *)0x20, (struct GDT){0, 0, 0, 0});
-    gdt_encode((unsigned char *)0x28, (struct GDT){0, 0xFFFFF, 0x9A, 0xC});
-    gdt_encode((unsigned char *)0x30, (struct GDT){0, 0xFFFFF, 0x92, 0xC});
+    vga_pos(0, 1);
+    
+    unsigned char gdt[24];
+    gdt_encode(&gdt[0], (struct GDT){0, 0, 0, 0}); // Null descriptor
+    gdt_encode(&gdt[8], (struct GDT){0, 0xFFFFF, 0x9A, 0xC}); // Code segment
+    gdt_encode(&gdt[16], (struct GDT){0, 0xFFFFF, 0x92, 0xC}); // Data segment
 
-    struct GDTR gdtr = {0x17, 0x20};
-
+    struct GDTR gdtr = {sizeof(gdt) - 1, (unsigned int)&gdt};
     __asm__ volatile("lgdt (%0)" : : "r"(&gdtr));
+
+    __asm__ volatile(
+        "mov $0x10, %ax\n"
+        "mov %ax, %ds\n"
+        "mov %ax, %es\n"
+        "mov %ax, %fs\n"
+        "mov %ax, %gs\n"
+        "mov %ax, %ss\n"
+        "ljmp $0x08, $.1\n"
+        ".1:"
+    );
+
     outb(0x3D4, 0x0A);
 	outb(0x3D5, 0x20);
     while (1)

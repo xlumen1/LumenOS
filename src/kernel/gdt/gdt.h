@@ -13,9 +13,9 @@ struct GDT
 
 struct GDTR
 {
-    unsigned char size;
+    unsigned short size; // Change to 16 bits as GDTR size is 2 bytes
     unsigned int offset;
-};
+} __attribute__((packed));
 
 
 void gdt_encode(unsigned char* target, struct GDT source);
