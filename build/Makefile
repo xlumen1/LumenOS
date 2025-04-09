@@ -1,4 +1,4 @@
-.PHONY: build clean iso run debug
+.PHONY: build clean iso run debug all refresh
 
 # Compiler and tools
 CC := gcc
@@ -25,6 +25,10 @@ S_OBJ := $(patsubst $(KERNEL)/%.s,$(OUT)/%.o,$(S_SRC))
 
 # All objects
 ALL_OBJ := $(C_OBJ) $(S_OBJ)
+
+all: iso run
+
+refresh: clean build
 
 # Build kernel
 build: $(ALL_OBJ)

@@ -22,7 +22,6 @@ void kmain()
     for (unsigned char i = 0; i < (VGA_WIDTH / 2) + 5 - strlen(txt); i++)
         vga_put('=', HEADERCOL);*/
     vga_print("=================================[Lumen Kernel]=================================", HEADERCOL);
-    vga_print(KERNEL_VERSION, DEFCOL);
     vga_pos(0, 4);
     gdt_encode((unsigned char *)0x20, (struct GDT){0, 0, 0, 0});
     gdt_encode((unsigned char *)0x28, (struct GDT){0, 0xFFFFF, 0x9A, 0xC});
