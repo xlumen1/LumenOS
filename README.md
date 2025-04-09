@@ -1,4 +1,4 @@
-![Lumen OS](./gh_assets/Lumen.png)
+![Lumen OS](./.assets/Lumen.png)
 ---
 Open Source Hobby Operating System, What More Would You Want?
 
