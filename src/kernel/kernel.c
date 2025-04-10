@@ -4,6 +4,7 @@
 #include "gdt/gdt.h"
 #include <time/time.h>
 #include <log/log.h>
+#include "idt/idt.h"
 
 #define DEFCOL VGA_COLOR(VGA_WHITE, VGA_BLUE)
 #define HEADERCOL VGA_COLOR(VGA_BLUE, VGA_LIGHT_GREY)
@@ -34,7 +35,9 @@ void kmain()
 
     vga_print("=================================[Lumen Kernel]=================================", HEADERCOL);
     vga_pos(0, 1);
-    
+
+    idt_init();
+
     unsigned char gdt[24];
     gdt_encode(&gdt[0], (struct GDT){0, 0, 0, 0}); // Null descriptor
     gdt_encode(&gdt[8], (struct GDT){0, 0xFFFFF, 0x9A, 0xC}); // Code segment
@@ -56,6 +59,8 @@ void kmain()
 
     outb(0x3D4, 0x0A);
 	outb(0x3D5, 0x20);
+
+    int x = 1 / 0;
 
     while (1)
     {
