@@ -1,13 +1,31 @@
-#include "libk/vga/vga.h"
-#include "libk/util/util.h"
-#include "libk/buffer/buffer.h"
+#include <vga/vga.h>
+#include <util/util.h>
+#include <buffer/buffer.h>
 #include "gdt/gdt.h"
-#include "libk/time/time.h"
+#include <time/time.h>
+#include <log/log.h>
 
 #define DEFCOL VGA_COLOR(VGA_WHITE, VGA_BLUE)
 #define HEADERCOL VGA_COLOR(VGA_BLUE, VGA_LIGHT_GREY)
 
 #define KERNEL_VERSION "v0.0.3-prototype"
+
+void print_gdt_entry(unsigned char *gdt, int index)
+{
+    unsigned int base = (gdt[index + 2] << 16) | (gdt[index + 4] << 24) | gdt[index];
+    unsigned int limit = (gdt[index + 1] & 0x0F) | (gdt[index + 6] << 16);
+    unsigned char access = gdt[index + 5];
+    unsigned char flags = (gdt[index + 6] & 0xF0) >> 4;
+
+    vga_print("Base: ", HEADERCOL);
+    vga_print(itoa(base, 16), HEADERCOL);
+    vga_print(" Limit: ", HEADERCOL);
+    vga_print(itoa(limit, 16), HEADERCOL);
+    vga_print(" Access: ", HEADERCOL);
+    vga_print(itoa(access, 16), HEADERCOL);
+    vga_print(" Flags: ", HEADERCOL);
+    vga_print(itoa(flags, 16), HEADERCOL);
+}
 
 void kmain()
 {
@@ -38,6 +56,7 @@ void kmain()
 
     outb(0x3D4, 0x0A);
 	outb(0x3D5, 0x20);
+
     while (1)
     {
         struct time t = get_time();

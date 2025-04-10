@@ -6,7 +6,6 @@ void gdt_encode(unsigned char* target, struct GDT source) {
         log_error("Limit too big (Must Be At Most 0xFFFFF)");
         return;
     }
-    log_info("Encoding GDT Entry");
 
     // Encode limit
     target[0] = source.limit & 0xFF;

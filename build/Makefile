@@ -5,15 +5,15 @@ CC := gcc
 AS := as
 LD := ld
 
-# Flags
-CCFLAGS := -m32 --static -ffreestanding -c -g
-LDFLAGS := -m elf_i386 -T linker.ld -static -nostdlib
-
 # Directories
 KERNEL := ../src/kernel
 BUILD := .
 OUT := $(BUILD)/out
 ISO := $(BUILD)/iso
+
+# Flags
+CCFLAGS := -m32 --static -ffreestanding -c -g -nostdinc -I$(KERNEL)/libk -I$(KERNEL)
+LDFLAGS := -m elf_i386 -T linker.ld -static -nostdlib
 
 # Source files
 C_SRC := $(shell find $(KERNEL) -type f -name "*.c")
