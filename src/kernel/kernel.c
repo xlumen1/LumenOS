@@ -60,8 +60,6 @@ void kmain()
     outb(0x3D4, 0x0A);
 	outb(0x3D5, 0x20);
 
-    int x = 1 / 0;
-
     while (1)
     {
         struct time t = get_time();
