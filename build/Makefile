@@ -62,9 +62,9 @@ iso: build
 # Run kernel in QEMU
 run: build
 	@echo "Running kernel in QEMU..."
-	qemu-system-i386 --kernel $(BUILD)/kernel.bin
+	qemu-system-i386 --kernel $(BUILD)/kernel.bin &
 
 # Debug kernel in QEMU
 debug: build
 	@echo "Debugging kernel in QEMU..."
-	qemu-system-i386 -s -S --kernel $(BUILD)/kernel.bin
+	qemu-system-i386 -s -S --kernel $(BUILD)/kernel.bin &
