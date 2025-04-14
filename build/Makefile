@@ -50,7 +50,7 @@ $(OUT)/%.o: $(KERNEL)/%.s
 # Clean build artifacts
 clean:
 	@echo "Cleaning build artifacts..."
-	rm -fr $(OUT) $(BUILD)/kernel.bin $(BUILD)/os.iso $(ISO)
+	rm -fr $(OUT) $(BUILD)/kernel.bin $(BUILD)/os.iso
 
 # Build ISO
 iso: build
