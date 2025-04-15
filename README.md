@@ -1,6 +1,6 @@
 ![Lumen OS](./.assets/Lumen.png)
 ---
-Open Source Hobby Operating System, What More Would You Want?
+*Open Source Hobby Operating System, What More Would You Want?*
 
 ## Dependencies
 - gcc
@@ -12,7 +12,6 @@ Open Source Hobby Operating System, What More Would You Want?
 - gdb
 
 ## To Build
-Just Building kernel.bin
 ```bash
 make
 ```
@@ -25,4 +24,14 @@ make run
 Building ISO
 ```bash
 make iso
+```
+
+Launch With GDB
+```bash
+make debug
+```
+
+Force Recompile
+```bash
+make refresh
 ```
