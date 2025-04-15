@@ -9,6 +9,7 @@ Open Source Hobby Operating System, What More Would You Want?
 - xorriso
 - qemu-system-x86
 - mtools
+- gdb
 
 ## To Build
 Just Building kernel.bin
