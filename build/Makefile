@@ -4,6 +4,7 @@
 CC := gcc
 AS := as
 LD := ld
+C3 := c3c
 GRUB := grub-mkrescue
 
 # Directories
@@ -13,19 +14,22 @@ OUT := $(BUILD)/out
 ISO := $(BUILD)/iso
 
 # Flags
+C3FLAGS :=
 CCFLAGS := -m32 --static -ffreestanding -c -g -nostdinc -I$(KERNEL)/libk -I$(KERNEL)
 LDFLAGS := -m elf_i386 -T linker.ld -static -nostdlib -g
 
 # Source files
 C_SRC := $(shell find $(KERNEL) -type f -name "*.c")
 S_SRC := $(shell find $(KERNEL) -type f -name "*.s")
+C3_SRC := $(shell find $(KERNEL) -type f -name "*.c3")
 
 # Object files
 C_OBJ := $(patsubst $(KERNEL)/%.c,$(OUT)/%.o,$(C_SRC))
 S_OBJ := $(patsubst $(KERNEL)/%.s,$(OUT)/%.o,$(S_SRC))
+C3_OBJ := $(patsubst $(KERNEL)/%.c3,$(OUT)/%.o,$(C3_SRC))
 
 # All objects
-ALL_OBJ := $(C_OBJ) $(S_OBJ)
+ALL_OBJ := $(C_OBJ) $(S_OBJ) $(C3_OBJ)
 
 all: iso run
 
@@ -47,6 +51,12 @@ $(OUT)/%.o: $(KERNEL)/%.s
 	@mkdir -p $(dir $@)
 	@echo "Assembling $<..."
 	$(AS) --32 -g $< -o $@
+
+# Compile C3 source files
+$(OUT)/%.o: $(KERNEL)/%.c3
+	@mkdir -p $(dir $@)
+	@echo "Compiling $<..."
+	$(C3) -o $@ $<
 
 # Clean build artifacts
 clean:
