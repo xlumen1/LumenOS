@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <log/log.h>
+#include <util/util.h>
 
 // Macros
 
@@ -22,6 +23,12 @@ struct idt_ptr {
     uint16_t limit;
     uint32_t base;
 } __attribute__((packed));
+
+typedef struct {
+    uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
+    uint32_t int_no;
+    uint32_t err_code;
+} __attribute__((packed)) isr_regs_t;
 
 // Functions
 

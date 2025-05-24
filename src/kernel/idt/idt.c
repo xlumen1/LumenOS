@@ -31,6 +31,8 @@ void isr_install() {
     idt_set_gate(0, (uint32_t)isr0, 0x08, 0x8E);
 }
 
-void isr_handler() {
+void isr_handler(isr_regs_t* regs) {
     log_error("Interrupt Received");
+    log_error("Interrupt number:");
+    log_error(itoa(regs->int_no, 16));
 }

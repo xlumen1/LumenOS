@@ -1,29 +1,20 @@
 .global isr0
 isr0:
-    cli                         
-    pushl $0
-    pushl $0
+    cli     
 
     pusha
 
-    mov %ds, %ax
+    pushl $0
+    pushl $0
+
+    mov %esp, %eax
     pushl %eax
-    mov $0x10, %ax
-    mov %ax, %ds
-    mov %ax, %es
-    mov %ax, %fs
-    mov %ax, %gs
 
     call isr_handler
 
-    popl %eax
-    mov %ax, %ds
-    mov %ax, %es
-    mov %ax, %fs
-    mov %ax, %gs
+    add $12, %esp
 
     popa
-    add $8, %esp
 
     sti
     iret
