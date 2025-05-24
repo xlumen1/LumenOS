@@ -13,6 +13,7 @@
 #define VGA_CHAR(a, color) ((short) a | (short) color << 8)
 
 // COLORS
+
 #define VGA_BLACK 0
 #define VGA_BLUE 1
 #define VGA_GREEN 2

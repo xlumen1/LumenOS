@@ -9,11 +9,12 @@ GRUB := grub-mkrescue
 # Directories
 KERNEL := ../src/kernel
 BUILD := .
+STDLIB := ../src/stdlib
 OUT := $(BUILD)/out
 ISO := $(BUILD)/iso
 
 # Flags
-CCFLAGS := -m32 --static -ffreestanding -c -g -nostdinc -I$(KERNEL)/libk -I$(KERNEL)
+CCFLAGS := -m32 --static -ffreestanding -c -g -nostdinc -I$(KERNEL)/libk -I$(KERNEL) -I$(STDLIB)
 LDFLAGS := -m elf_i386 -T linker.ld -static -nostdlib -g
 
 # Source files
