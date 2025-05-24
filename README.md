@@ -30,8 +30,3 @@ Launch With GDB
 ```bash
 make debug
 ```
-
-Force Recompile
-```bash
-make refresh
-```

@@ -27,7 +27,6 @@ void kmain()
 
     __asm__ volatile ("sti");
 
-    __asm__ volatile ("int $0x00");
 
     while (1)
     {
