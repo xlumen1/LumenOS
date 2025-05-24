@@ -1,7 +1,7 @@
 #include "log.h"
 
 void log_info(const char* message) {
-    vga_print(message, VGA_COLOR(VGA_GREEN, VGA_BLACK));
+    vga_print(message, VGA_COLOR(VGA_WHITE, VGA_BLACK));
     vga_newline();
 }
 

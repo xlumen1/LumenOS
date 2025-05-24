@@ -1,27 +1,36 @@
 #include "idt.h"
 
-#define IDT_SIZE 256
+struct idt_entry idt[IDT_ENTRIES];
+struct idt_ptr idtp;
 
-struct IDTEntry idt[IDT_SIZE];
-struct IDTR idtr;
+extern void idt_load();
 
-void idt_set_entry(int index, unsigned int handler, unsigned short selector, unsigned char type_attr) {
-    idt[index].offset_low = handler & 0xFFFF;
-    idt[index].selector = selector;
-    idt[index].zero = 0;
-    idt[index].type_attr = type_attr;
-    idt[index].offset_high = (handler >> 16) & 0xFFFF;
+void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
+    idt[num].base_lo = base & 0xFFFF;
+    idt[num].base_hi = (base >> 16) & 0xFFFF;
+
+    idt[num].sel     = sel;
+    idt[num].always0 = 0;
+    idt[num].flags   = flags;
 }
 
-void idt_init() {
-    idtr.limit = sizeof(idt) - 1;
-    idtr.base = (unsigned int)&idt;
+void idt_install() {
+    idtp.limit = sizeof(struct idt_entry) * IDT_ENTRIES - 1;
+    idtp.base  = (uint32_t)&idt;
 
-    // Clear the IDT
-    for (int i = 0; i < IDT_SIZE; i++) {
-        idt_set_entry(i, 0, 0, 0);
+    // Clear all IDT entries
+    for (int i = 0; i < IDT_ENTRIES; i++) {
+        idt_set_gate(i, 0, 0, 0);
     }
 
-    // Load the IDT
-    __asm__ volatile("lidt (%0)" : : "r"(&idtr));
+    idt_load();
+}
+
+extern void isr0();
+void isr_install() {
+    idt_set_gate(0, (uint32_t)isr0, 0x08, 0x8E);
+}
+
+void isr_handler() {
+    log_error("Interrupt Received");
 }

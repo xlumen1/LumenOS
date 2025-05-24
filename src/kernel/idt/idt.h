@@ -1,22 +1,32 @@
 #ifndef IDT_H
 #define IDT_H
 
-#include <util/util.h>
+#include <stdint.h>
+#include <log/log.h>
 
-struct IDTEntry {
-    unsigned short offset_low;  // Lower 16 bits of the handler function address
-    unsigned short selector;    // Kernel segment selector
-    unsigned char zero;         // Reserved, set to 0
-    unsigned char type_attr;    // Type and attributes
-    unsigned short offset_high; // Upper 16 bits of the handler function address
+// Macros
+
+#define IDT_ENTRIES 256
+
+// Structs
+
+struct idt_entry {
+    uint16_t base_lo;
+    uint16_t sel;
+    uint8_t  always0;
+    uint8_t  flags;
+    uint16_t base_hi;
 } __attribute__((packed));
 
-struct IDTR {
-    unsigned short limit;       // Size of the IDT - 1
-    unsigned int base;          // Address of the IDT
+struct idt_ptr {
+    uint16_t limit;
+    uint32_t base;
 } __attribute__((packed));
 
-void idt_init();
-void idt_set_entry(int index, unsigned int handler, unsigned short selector, unsigned char type_attr);
+// Functions
+
+void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
+void idt_install();
+void isr_install();
 
 #endif
