@@ -18,12 +18,12 @@ void idt_install() {
     idtp.limit = sizeof(struct idt_entry) * IDT_ENTRIES - 1;
     idtp.base  = (uint32_t)&idt;
 
-    // Clear all IDT entries
     for (int i = 0; i < IDT_ENTRIES; i++) {
         idt_set_gate(i, 0, 0, 0);
     }
 
     idt_load();
+    isr_pic_remap();
 }
 
 extern void isr0();
@@ -33,6 +33,17 @@ void isr_install() {
 
 void isr_handler(isr_regs_t* regs) {
     log_error("Interrupt Received");
-    log_error("Interrupt number:");
-    log_error(itoa(regs->int_no, 16));
+}
+
+void isr_pic_remap() {
+    outb(PIC1_COMMAND, 0x11);
+    outb(PIC2_COMMAND, 0x11);
+    outb(PIC1_DATA, 0x20);
+    outb(PIC2_DATA, 0x28);
+    outb(PIC1_DATA, 0x04);
+    outb(PIC2_DATA, 0x02);
+    outb(PIC1_DATA, 0x01);
+    outb(PIC2_DATA, 0x01);
+    outb(PIC1_DATA, 0xFF);
+    outb(PIC2_DATA, 0xFF);
 }

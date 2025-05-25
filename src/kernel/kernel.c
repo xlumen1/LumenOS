@@ -26,10 +26,6 @@ void kmain()
     log_info("IDT loaded");
 
     __asm__ volatile ("sti");
-
-
-    while (1)
-    {
-        
-    }
+    __asm__ volatile ("int $0x0");
+    __asm__ volatile ("hlt");
 }
