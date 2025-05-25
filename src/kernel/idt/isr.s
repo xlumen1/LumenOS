@@ -25,6 +25,21 @@ isr\num:
     iret
 .endm
 
+.macro IRQ num
+.global isr\num
+isr\num:
+    cli
+    pusha
+    push 0
+    push \num
+    call isr_handler
+    add %esp, 8
+    popa
+    sti
+    iret
+.endm
+
+
 ISR_NOERR 0
 ISR_NOERR 1
 ISR_NOERR 2
@@ -57,3 +72,20 @@ ISR_NOERR 28
 ISR_NOERR 29
 ISR_NOERR 30
 ISR_NOERR 31
+
+IRQ 32
+IRQ 33
+IRQ 34
+IRQ 35
+IRQ 36
+IRQ 37
+IRQ 38
+IRQ 39
+IRQ 40
+IRQ 41
+IRQ 42
+IRQ 43
+IRQ 44
+IRQ 45
+IRQ 46
+IRQ 47

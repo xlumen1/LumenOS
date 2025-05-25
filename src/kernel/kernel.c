@@ -24,8 +24,11 @@ void kmain()
     idt_install();
     isr_install();
     log_info("IDT loaded");
-
     __asm__ volatile ("sti");
-    __asm__ volatile ("int $0x0");
-    __asm__ volatile ("hlt");
+    __asm__ volatile ("int $1");
+    __asm__ volatile ("int $1");
+    __asm__ volatile ("int $1");
+    while (1) {
+
+    }
 }

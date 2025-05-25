@@ -30,9 +30,6 @@ struct idt_ptr {
 } __attribute__((packed));
 
 typedef struct {
-    uint32_t int_no;
-    uint32_t err_code;
-
     uint32_t eax;
     uint32_t ecx;
     uint32_t edx;
@@ -41,6 +38,9 @@ typedef struct {
     uint32_t ebp;
     uint32_t esi;
     uint32_t edi;
+
+    uint32_t int_no;
+    uint32_t err_code;
 } __attribute__((packed)) isr_regs_t;
 
 // Functions
