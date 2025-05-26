@@ -1,11 +1,10 @@
 name: Release
 
+permissions:
+    contents: write
+
 on:
-    workflow_dispatch:
-        inputs:
-            body:
-                description: 'Release notes'
-                required: true
+    workflow_dispatch
 
 jobs:
     release:
@@ -28,7 +27,11 @@ jobs:
             run: |
               VERSION=$(jq -r '.version' version.json)
               SUB=$(jq -r '.sub' version.json)
+              NOTES=$(cat RELEASE.md)
               echo "VERSION_FULL=${VERSION}-${SUB}" >> $GITHUB_OUTPUT
+              echo "VERSION_TITLE=v${VERSION}" >> $GITHUB_OUTPUT
+              echo "RELEASE_NOTES=${NOTES}" >> $GITHUB_OUTPUT
+              
 
           - name: Create GitHub Release
             id: create_release
@@ -37,7 +40,7 @@ jobs:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             with:
               tag_name: ${{ steps.version.outputs.VERSION_FULL }}
-              release_name: ${{ steps.version.outputs.VERSION_FULL }}
+              release_name: ${{ steps.version.outputs.VERSION_TITLE }}
               body: ${{ github.event.inputs.body }}
               draft: false
               prerelease: false
