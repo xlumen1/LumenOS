@@ -1,6 +1,4 @@
-![Lumen OS](./.assets/Lumen2.png)
-
----
+<h1 align="center"><img src="./.assets/Lumen2.png"/></h1>
 
 *Open Source Hobby Operating System, What More Would You Want?*
 
