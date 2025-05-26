@@ -3,7 +3,6 @@
 
 #include "isr.h"
 #include <log/log.h>
-#include <util/util.h>
 #include <io/io.h>
 
 // Macros

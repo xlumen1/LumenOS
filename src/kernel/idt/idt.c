@@ -130,7 +130,7 @@ void isr_handler(isr_regs_t* regs) {
         switch (regs->int_no)
         {
         case 33:
-            keyboard_handler(regs);
+            keyboard_handler();
             break;
         
         default:

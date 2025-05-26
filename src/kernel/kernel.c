@@ -1,5 +1,4 @@
 #include <vga/vga.h>
-#include <util/util.h>
 #include <buffer/buffer.h>
 #include <gdt/gdt.h>
 #include <time/time.h>
@@ -29,8 +28,8 @@ void kmain()
     
     __asm__ volatile ("sti");
 
-    serial_init();
-    serial_write("Serial Debug Connection Established\n");
+    serial_init(COM1);
+    serial_write("Serial Debug Connection Established\n", COM1);
     while (1) {
 
     }

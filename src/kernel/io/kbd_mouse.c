@@ -65,7 +65,7 @@ char keyboard_get_char(uint8_t scancode) {
     return km1[scancode];
 }
 
-void keyboard_handler(isr_regs_t* regs) {
+void keyboard_handler() {
     uint8_t scancode = inb(0x60);
     char c = keyboard_get_char(scancode);
     if (c)

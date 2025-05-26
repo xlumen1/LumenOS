@@ -3,7 +3,7 @@
 #include <string.h>
 
 void vga_scroll(uint8_t lines) {
-    serial_write("Scroll\n");
+    serial_write("Scroll\n", COM1);
 
     if (lines >= VGA_HEIGHT) {
         for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++)

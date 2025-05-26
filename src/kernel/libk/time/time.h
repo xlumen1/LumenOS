@@ -1,16 +1,17 @@
 #ifndef TIME_H
 #define TIME_H
 
-#include "../util/util.h"
+#include <stdint.h>
+#include <io/io.h>
 
 struct time {
-    unsigned char second;
-    unsigned char minute;
-    unsigned char hour;
-    unsigned char day;
-    unsigned char month;
-    unsigned char year;
-    unsigned char century;
+    uint8_t second;
+    uint8_t minute;
+    uint8_t hour;
+    uint8_t day;
+    uint8_t month;
+    uint8_t year;
+    uint8_t century;
 };
 
 struct time get_time();

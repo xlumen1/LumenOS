@@ -1,7 +1,7 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
-#include "../util/util.h"
+#include <stdint.h>
 
 typedef struct
 {
@@ -18,7 +18,7 @@ typedef struct
 
 typedef struct
 {
-    short* address;
+    uint16_t* address;
     size_t width;
     size_t height;
 } tbuffer_t;
@@ -33,9 +33,9 @@ void buffer2d_fill(buffer2d_t* buffer, char c);
 void buffer2d_set(buffer2d_t* buffer, char c, size_t x, size_t y);
 char buffer2d_get(buffer2d_t* buffer, size_t x, size_t y);
 
-void tbuffer_init(tbuffer_t* buffer, short* address, size_t width, size_t height);
-void tbuffer_fill(tbuffer_t* buffer, short c);
-void tbuffer_set(tbuffer_t* buffer, short c, size_t x, size_t y);
+void tbuffer_init(tbuffer_t* buffer, uint16_t* address, size_t width, size_t height);
+void tbuffer_fill(tbuffer_t* buffer, uint16_t c);
+void tbuffer_set(tbuffer_t* buffer, uint16_t c, size_t x, size_t y);
 short tbuffer_get(tbuffer_t* buffer, size_t x, size_t y);
 
 #endif

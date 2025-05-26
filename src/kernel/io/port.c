@@ -1,11 +1,11 @@
-#include "util.h"
+#include "io.h"
 
-void outb(unsigned short port, unsigned char val)
+void outb(uint16_t port, uint8_t val)
 {
     __asm__ volatile ( "outb %b0, %w1" : : "a"(val), "Nd"(port) : "memory");
 }
 
-unsigned char inb(unsigned short port)
+uint8_t inb(uint16_t port)
 {
     unsigned char ret;
     __asm__ volatile ( "inb %w1, %b0"
