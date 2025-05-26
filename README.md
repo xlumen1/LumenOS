@@ -2,6 +2,10 @@
 
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/xlumen1/LumenOS/build.yml)](#)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/xlumen1/LumenOS)](https://github.com/xlumen1/LumenOS/releases)
+[![GitHub License](https://img.shields.io/github/license/xlumen1/LumenOS)](./LICENSE)
+
+[![GitHub repo size](https://img.shields.io/github/repo-size/xlumen1/LumenOS)](#)
+[![GitHub top language](https://img.shields.io/github/languages/top/xlumen1/LumenOS)](https://github.com/search?q=repo%3Axlumen1%2FLumenOS++language%3AC&type=code)
 
 *Open Source Hobby Operating System, What More Would You Want?*
 
