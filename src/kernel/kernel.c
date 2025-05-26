@@ -6,6 +6,7 @@
 #include <log/log.h>
 #include <idt/idt.h>
 #include <serial/serial.h>
+#include <io/io.h>
 
 void kmain()
 {
@@ -23,6 +24,9 @@ void kmain()
     idt_install();
     isr_install();
     log_info("IDT loaded");
+
+    keyboard_init();
+    
     __asm__ volatile ("sti");
 
     serial_init();

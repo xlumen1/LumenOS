@@ -6,5 +6,6 @@
 #include <idt/isr.h>
 
 void keyboard_handler(isr_regs_t* regs);
+void keyboard_init();
 
 #endif

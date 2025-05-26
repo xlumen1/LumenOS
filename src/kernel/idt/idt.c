@@ -126,7 +126,6 @@ void isr_install() {
 }
 
 void isr_handler(isr_regs_t* regs) {
-    printf("Received Interupt %x\n", regs->int_no);
     if(regs->int_no >= 32 && regs->int_no <= 47) {
         switch (regs->int_no)
         {
