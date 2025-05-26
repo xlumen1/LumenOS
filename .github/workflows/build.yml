@@ -1,0 +1,30 @@
+name: Build LumenOS
+
+on:
+  push:
+    branches: [ main ]   # or your default branch
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential gcc-multilib qemu-system-i386
+
+    - name: Build kernel
+      run: |
+        cd build
+        make build
+
+    - name: Upload kernel artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: kernel.bin
+        path: build/kernel.bin
