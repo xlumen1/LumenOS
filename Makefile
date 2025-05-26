@@ -48,7 +48,7 @@ iso: build
 	$(GRUB) -o $(BUILD)/os.iso $(ISO)
 
 run: build
-	qemu-system-i386 --kernel $(BUILD)/kernel.bin &
+	qemu-system-i386 --kernel $(BUILD)/kernel.bin -serial stdio
 
 debug: build
 	qemu-system-i386 -s -S --kernel $(BUILD)/kernel.bin &

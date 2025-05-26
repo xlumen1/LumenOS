@@ -1,10 +1,11 @@
 #include <vga/vga.h>
 #include <util/util.h>
 #include <buffer/buffer.h>
-#include "gdt/gdt.h"
+#include <gdt/gdt.h>
 #include <time/time.h>
 #include <log/log.h>
-#include "idt/idt.h"
+#include <idt/idt.h>
+#include <serial/serial.h>
 
 #define KERNEL_VERSION "v0.0.3-prototype"
 
@@ -25,9 +26,9 @@ void kmain()
     isr_install();
     log_info("IDT loaded");
     __asm__ volatile ("sti");
-    __asm__ volatile ("int $1");
-    __asm__ volatile ("int $1");
-    __asm__ volatile ("int $1");
+
+    serial_init();
+    serial_write("Serial Debug Connection Established\n");
     while (1) {
 
     }
