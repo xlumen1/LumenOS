@@ -27,10 +27,11 @@ jobs:
             run: |
               VERSION=$(jq -r '.version' version.json)
               SUB=$(jq -r '.sub' version.json)
-              NOTES=$(cat RELEASE.md)
               echo "VERSION_FULL=${VERSION}-${SUB}" >> $GITHUB_OUTPUT
               echo "VERSION_TITLE=v${VERSION}" >> $GITHUB_OUTPUT
-              echo "RELEASE_NOTES=${NOTES}" >> $GITHUB_OUTPUT
+              echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+              cat RELEASE.md >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
               
 
           - name: Create GitHub Release
