@@ -16,11 +16,11 @@
 ## Dependencies
 
 Before building, install these:
-- `gcc`
-- `binutils`
+- `gcc-multilib`
+- `build-essential`
 - `grub-pc-bin`
 - `xorriso`
-- `qemu-system-x86`
+- `qemu-system-i386`
 - `mtools`
 - `gdb`
 

@@ -1,0 +1,53 @@
+name: Release
+
+on:
+    workflow_dispatch:
+        inputs:
+            body:
+                description: 'Release notes'
+                required: true
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v4
+
+          - name: Install build dependencies
+            run: |
+              sudo apt-get update
+              sudo apt-get install -y build-essential gcc-multilib qemu-system-i386 xorriso mtools grub-pc-bin gdb
+
+          - name: Build kernel
+            run: |
+              make build
+
+          - name: Read version from version.json
+            id: version
+            run: |
+              VERSION=$(jq -r '.version' version.json)
+              SUB=$(jq -r '.sub' version.json)
+              echo "VERSION_FULL=${VERSION}-${SUB}" >> $GITHUB_OUTPUT
+
+          - name: Create GitHub Release
+            id: create_release
+            uses: actions/create-release@v1
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            with:
+              tag_name: ${{ steps.version.outputs.VERSION_FULL }}
+              release_name: ${{ steps.version.outputs.VERSION_FULL }}
+              body: ${{ github.event.inputs.body }}
+              draft: false
+              prerelease: false
+
+          - name: Upload kernel.bin to Release
+            uses: actions/upload-release-asset@v1
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            with:
+              upload_url: ${{ steps.create_release.outputs.upload_url }}
+              asset_path: build/kernel.bin
+              asset_name: kernel.bin
+              asset_content_type: application/octet-stream
