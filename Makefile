@@ -22,8 +22,6 @@ SRC :=  $(shell find $(KERNEL) -type f -name "*.c") $(shell find $(STDLIB) -type
 OBJ :=  $(patsubst %.c,$(OUT)/%.o,$(filter %.c,$(SRC))) \
     	$(patsubst %.s,$(OUT)/%.o,$(filter %.s,$(SRC)))
 
-all: iso run
-
 build: $(OBJ)
 	$(LD) $(LDFLAGS) -o $(BUILD)/kernel.bin $(OBJ)
 
@@ -49,6 +47,8 @@ iso: build
 
 run: build
 	qemu-system-i386 --kernel $(BUILD)/kernel.bin -serial stdio
+
+all: build run
 
 debug: build
 	qemu-system-i386 -s -S --kernel $(BUILD)/kernel.bin &
