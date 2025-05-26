@@ -7,8 +7,6 @@
 #include <idt/idt.h>
 #include <serial/serial.h>
 
-#define KERNEL_VERSION "v0.0.3-prototype"
-
 void kmain()
 {
     vga_init();

@@ -16,14 +16,28 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential gcc-multilib qemu-system-i386
+        sudo apt-get install -y build-essential gcc-multilib qemu-system-i386 xorriso mtools grub-pc-bin gdb
 
-    - name: Build kernel
+    - name: Build kernel and iso
       run: |
         make build
+        make iso
+      
+    - name: Read version from version.json
+      id: version
+      run: |
+        VERSION=$(jq -r '.version' version.json)
+        SUB=$(jq -r '.sub' version.json)
+        echo "VERSION_FULL=${VERSION}-${SUB}" >> $GITHUB_OUTPUT
 
-    - name: Upload kernel artifact
+    - name: Upload kernel.bin
       uses: actions/upload-artifact@v4
       with:
-        name: kernel.bin
+        name: kernel.${{ steps.version.outputs.VERSION_FULL }}.bin
         path: build/kernel.bin
+    
+    - name: Upload ISO
+      uses: actions/upload-artifact@v4
+      with:
+        name: lumenos.${{ steps.version.outputs.VERSION_FULL }}.iso
+        path: build/os.iso
