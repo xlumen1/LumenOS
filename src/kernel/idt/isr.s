@@ -2,11 +2,13 @@
 .global isr\num
 isr\num:
     cli
-    pusha
-    pushl $0 # Push dummy error code
+    pushl $0
     pushl $\num
+    pusha
+    mov %esp, %eax
+    push %eax
     call isr_handler
-    add $8, %esp # Clean up the stack
+    add $12, %esp
     popa
     sti
     iret
@@ -16,10 +18,12 @@ isr\num:
 .global isr\num
 isr\num:
     cli
+    pushl $\num
     pusha
-    pushl $\num # Interrupt number
+    mov %esp, %eax
+    push %eax
     call isr_handler
-    add $4, %esp
+    add $12, %esp
     popa
     sti
     iret
@@ -28,12 +32,14 @@ isr\num:
 .macro IRQ num
 .global isr\num
 isr\num:
+    pushl $0
+    pushl $\num
     cli
     pusha
-    push 0
-    push \num
+    mov %esp, %eax
+    push %eax
     call isr_handler
-    add %esp, 8
+    add $12, %esp
     popa
     sti
     iret
@@ -72,20 +78,19 @@ ISR_NOERR 28
 ISR_NOERR 29
 ISR_NOERR 30
 ISR_NOERR 31
-
-IRQ 32
-IRQ 33
-IRQ 34
-IRQ 35
-IRQ 36
-IRQ 37
-IRQ 38
-IRQ 39
-IRQ 40
-IRQ 41
-IRQ 42
-IRQ 43
-IRQ 44
-IRQ 45
-IRQ 46
-IRQ 47
+IRQ       32
+IRQ       33
+IRQ       34
+IRQ       35
+IRQ       36
+IRQ       37
+IRQ       38
+IRQ       39
+IRQ       40
+IRQ       41
+IRQ       42
+IRQ       43
+IRQ       44
+IRQ       45
+IRQ       46
+IRQ       47

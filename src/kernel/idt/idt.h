@@ -1,9 +1,10 @@
 #ifndef IDT_H
 #define IDT_H
 
-#include <stdint.h>
+#include "isr.h"
 #include <log/log.h>
 #include <util/util.h>
+#include <io/io.h>
 
 // Macros
 
@@ -28,20 +29,6 @@ struct idt_ptr {
     uint16_t limit;
     uint32_t base;
 } __attribute__((packed));
-
-typedef struct {
-    uint32_t eax;
-    uint32_t ecx;
-    uint32_t edx;
-    uint32_t ebx;
-    uint32_t esp;
-    uint32_t ebp;
-    uint32_t esi;
-    uint32_t edi;
-
-    uint32_t int_no;
-    uint32_t err_code;
-} __attribute__((packed)) isr_regs_t;
 
 // Functions
 

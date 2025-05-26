@@ -58,6 +58,22 @@ extern void isr28();
 extern void isr29();
 extern void isr30();
 extern void isr31();
+extern void isr32();
+extern void isr33();
+extern void isr34();
+extern void isr35();
+extern void isr36();
+extern void isr37();
+extern void isr38();
+extern void isr39();
+extern void isr40();
+extern void isr41();
+extern void isr42();
+extern void isr43();
+extern void isr44();
+extern void isr45();
+extern void isr46();
+extern void isr47();
 void isr_install() {
     idt_set_gate(0, (uint32_t)isr0, 0x08, 0x8E);
     idt_set_gate(1, (uint32_t)isr1, 0x08, 0x8E);
@@ -91,11 +107,36 @@ void isr_install() {
     idt_set_gate(29, (uint32_t)isr29, 0x08, 0x8E);
     idt_set_gate(30, (uint32_t)isr30, 0x08, 0x8E);
     idt_set_gate(31, (uint32_t)isr31, 0x08, 0x8E);
+    idt_set_gate(32, (uint32_t)isr32, 0x08, 0x8E);
+    idt_set_gate(33, (uint32_t)isr33, 0x08, 0x8E);
+    idt_set_gate(34, (uint32_t)isr34, 0x08, 0x8E);
+    idt_set_gate(35, (uint32_t)isr35, 0x08, 0x8E);
+    idt_set_gate(36, (uint32_t)isr36, 0x08, 0x8E);
+    idt_set_gate(37, (uint32_t)isr37, 0x08, 0x8E);
+    idt_set_gate(38, (uint32_t)isr38, 0x08, 0x8E);
+    idt_set_gate(39, (uint32_t)isr39, 0x08, 0x8E);
+    idt_set_gate(40, (uint32_t)isr40, 0x08, 0x8E);
+    idt_set_gate(41, (uint32_t)isr41, 0x08, 0x8E);
+    idt_set_gate(42, (uint32_t)isr42, 0x08, 0x8E);
+    idt_set_gate(43, (uint32_t)isr43, 0x08, 0x8E);
+    idt_set_gate(44, (uint32_t)isr44, 0x08, 0x8E);
+    idt_set_gate(45, (uint32_t)isr45, 0x08, 0x8E);
+    idt_set_gate(46, (uint32_t)isr46, 0x08, 0x8E);
+    idt_set_gate(47, (uint32_t)isr47, 0x08, 0x8E);
 }
 
 void isr_handler(isr_regs_t* regs) {
-    log_error("Interrupt Received");
+    printf("Received Interupt %x\n", regs->int_no);
     if(regs->int_no >= 32 && regs->int_no <= 47) {
+        switch (regs->int_no)
+        {
+        case 33:
+            keyboard_handler(regs);
+            break;
+        
+        default:
+            break;
+        }
         if (regs->int_no >= 40) outb(0xA0, 0x20);
         outb(0x20, 0x20);
     } else {
@@ -114,4 +155,5 @@ void isr_pic_remap() {
     outb(PIC2_DATA, 0x01);
     outb(PIC1_DATA, 0xFF);
     outb(PIC2_DATA, 0xFF);
+    outb(PIC1_DATA, 0b11111101); 
 }

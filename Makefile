@@ -18,20 +18,25 @@ CCFLAGS := -m32 --static -ffreestanding -c -g -nostdinc -I$(KERNEL)/libk -I$(KER
 LDFLAGS := -m elf_i386 -T $(BUILD)/linker.ld -static -nostdlib -g
 
 # Build files
-SRC := $(shell find $(KERNEL) -type f -name "*.c") $(shell find $(KERNEL) -type f -name "*.s")
-OBJ := $(patsubst $(KERNEL)/%.c,$(OUT)/%.o,$(filter %.c,$(SRC))) \
-       $(patsubst $(KERNEL)/%.s,$(OUT)/%.o,$(filter %.s,$(SRC)))
+SRC :=  $(shell find $(KERNEL) -type f -name "*.c") $(shell find $(STDLIB) -type f -name "*.c") $(shell find $(KERNEL) -type f -name "*.s")
+OBJ :=  $(patsubst %.c,$(OUT)/%.o,$(filter %.c,$(SRC))) \
+    	$(patsubst %.s,$(OUT)/%.o,$(filter %.s,$(SRC)))
 
 all: iso run
 
 build: $(OBJ)
 	$(LD) $(LDFLAGS) -o $(BUILD)/kernel.bin $(OBJ)
 
-$(OUT)/%.o: $(KERNEL)/%.c
+$(OUT)/$(KERNEL)/%.o: $(KERNEL)/%.c
 	mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) $< -o $@
 
-$(OUT)/%.o: $(KERNEL)/%.s
+$(OUT)/$(STDLIB)/%.o: $(STDLIB)/%.c
+	mkdir -p $(dir $@)
+	$(CC) $(CCFLAGS) $< -o $@
+
+$(OUT)/$(KERNEL)/%.o: $(KERNEL)/%.s
+	mkdir -p $(dir $@)
 	$(AS) --32 -g $< -o $@
 
 clean:
@@ -47,4 +52,7 @@ run: build
 
 debug: build
 	qemu-system-i386 -s -S --kernel $(BUILD)/kernel.bin &
-	gdb ./kernel.bin --silent -ex "target remote localhost:1234"
+	gdb $(BUILD)/kernel.bin --silent -ex "target remote localhost:1234"
+
+print-obj:
+	@echo $(OBJ)
