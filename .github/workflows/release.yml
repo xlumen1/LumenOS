@@ -21,6 +21,7 @@ jobs:
           - name: Build kernel
             run: |
               make build
+              make iso
 
           - name: Read version from version.json
             id: version
