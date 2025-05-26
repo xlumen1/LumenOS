@@ -1,5 +1,8 @@
 <h1 align="center"><img src="./.assets/Lumen2.png"/></h1>
 
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/xlumen1/LumenOS/build.yml)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/xlumen1/LumenOS)](https://github.com/xlumen1/LumenOS/releases)
+
 *Open Source Hobby Operating System, What More Would You Want?*
 
 **LumenOS** is an open-source, hobbyist operating system that I am making for fun.
