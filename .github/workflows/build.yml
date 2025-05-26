@@ -30,14 +30,14 @@ jobs:
         SUB=$(jq -r '.sub' version.json)
         echo "VERSION_FULL=${VERSION}-${SUB}" >> $GITHUB_OUTPUT
 
-    - name: Upload kernel.bin
+    - name: Prepare release bundle
+      run: |
+        mkdir -p release
+        cp build/kernel.bin release/
+        cp build/os.iso release/
+
+    - name: Upload Bundle
       uses: actions/upload-artifact@v4
       with:
-        name: kernel.${{ steps.version.outputs.VERSION_FULL }}.bin
-        path: build/kernel.bin
-    
-    - name: Upload ISO
-      uses: actions/upload-artifact@v4
-      with:
-        name: lumenos.${{ steps.version.outputs.VERSION_FULL }}.iso
-        path: build/os.iso
+        name: lumenos.${{ steps.version.outputs.VERSION_FULL }}.bundle
+        path: release/
