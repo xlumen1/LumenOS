@@ -1,4 +1,4 @@
-![Lumen OS](./.assets/Lumen.png)
+![Lumen OS](./.assets/Lumen2.png)
 
 ---
 
