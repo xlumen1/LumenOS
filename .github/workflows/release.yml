@@ -43,7 +43,7 @@ jobs:
             with:
               tag_name: ${{ steps.version.outputs.VERSION_FULL }}
               release_name: ${{ steps.version.outputs.VERSION_TITLE }}
-              body: ${{ github.event.inputs.body }}
+              body: ${{ steps.version.outputs.RELEASE_NOTES }}
               draft: false
               prerelease: false
 
