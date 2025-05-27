@@ -75,15 +75,15 @@ void keyboard_init() {
     km1[0x45]= '\0';
     km1[0x46] = '\0';
     km1[0x47] = '7';
-    km1[0x48] = '8';
+    km1[0x48] = '\0';
     km1[0x49] = '9';
     km1[0x4a] = '-';
-    km1[0x4b] = '4';
+    km1[0x4b] = '\0';
     km1[0x4c] = '5';
-    km1[0x4d] = '6';
+    km1[0x4d] = '\0';
     km1[0x4e] = '+';
     km1[0x4f] = '1';
-    km1[0x50] = '2';
+    km1[0x50] = '\0';
     km1[0x51] = '3';
     km1[0x52] = '0';
     km1[0x53] = '.';
@@ -110,18 +110,6 @@ char apply_shift(char c) {
 }
 
 char keyboard_get_char(uint8_t scancode) {
-    if (scancode == 0x2A) {
-        keyboard_shift = 255;
-        return 0;
-    }
-    if (scancode == 0xAA) {
-        keyboard_shift = 0;
-        return 0;
-    }
-    if (scancode == 0x1C) {
-        vga_newline();
-        return 0;
-    }
     switch (scancode)
     {
     case 0x2A:
@@ -159,6 +147,21 @@ char keyboard_get_char(uint8_t scancode) {
         }
         vga_set('\0', VGA_COLOR(VGA_WHITE, VGA_BLACK), vga_col, vga_row);
         return 0;
+    case 0x48:
+	vga_pos(vga_col, vga_row - 1);
+	return 0;
+
+    case 0x4B:
+	vga_pos(vga_col - 1, vga_row);
+	return 0;
+
+    case 0x4D:
+	vga_pos(vga_col + 1, vga_row);
+	return 0;
+
+    case 0x50:
+	vga_pos(vga_col, vga_row + 1);
+	return 0;
     
     default:
         return apply_shift(km1[scancode]);
