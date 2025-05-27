@@ -115,7 +115,7 @@ char keyboard_get_char(uint8_t scancode) {
     case 0x2A:
         keyboard_shift = 255;
         return 0;
-    
+
     case 0x36:
         keyboard_shift = 255;
         return 0;
@@ -123,15 +123,15 @@ char keyboard_get_char(uint8_t scancode) {
     case 0xAA:
         keyboard_shift = 0;
         return 0;
-    
+
     case 0xB6:
         keyboard_shift = 0;
         return 0;
-    
+
     case 0x1C:
         vga_newline();
         return 0;
-    
+
     case 0x0E:
         if (vga_col > 0) {
             vga_pos(vga_col - 1, vga_row);
@@ -141,6 +141,10 @@ char keyboard_get_char(uint8_t scancode) {
             if ((char)(tbuffer_get(&vga_buffer, vga_col, vga_row) & 0x00FF) == '\0') {
                 while ((char)(tbuffer_get(&vga_buffer, vga_col, vga_row) & 0x00FF) == '\0') {
                     vga_pos(vga_col - 1, vga_row);
+		    if (vga_col == 0) {
+			vga_pos(vga_col - 1, vga_row);
+			break;
+		    }
                 }
                 vga_pos(vga_col + 1, vga_row);
             }
