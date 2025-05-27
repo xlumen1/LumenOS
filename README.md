@@ -70,4 +70,4 @@ If you’re new to OS development, this is a decent place to start learning, alt
 
 ## License
 
-LumenOS is released under the open-source CC0-1.0 license. See [LICENSE](LICENSE) for details.
+LumenOS is released under the open-source Unlicense license. See [LICENSE](LICENSE) for details.
