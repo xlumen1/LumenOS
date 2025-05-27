@@ -106,6 +106,7 @@ char apply_shift(char c) {
         return c - 0x20;
     if (is_number(c))
         return c - 0x10;
+    return 0;
 }
 
 char keyboard_get_char(uint8_t scancode) {
