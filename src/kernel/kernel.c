@@ -2,10 +2,10 @@
 #include <buffer/buffer.h>
 #include <gdt/gdt.h>
 #include <time/time.h>
-#include <log/log.h>
 #include <idt/idt.h>
 #include <serial/serial.h>
 #include <io/io.h>
+#include <stdio.h>
 
 void kmain()
 {
@@ -18,11 +18,11 @@ void kmain()
 	outb(0x3D5, 0x20);
 
     gdt_install();
-    log_info("GDT loaded");
+    printf("GDT loaded\n");
 
     idt_install();
     isr_install();
-    log_info("IDT loaded");
+    printf("IDT loaded\n");
 
     keyboard_init();
     

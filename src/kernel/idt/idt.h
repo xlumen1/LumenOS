@@ -2,7 +2,6 @@
 #define IDT_H
 
 #include "isr.h"
-#include <log/log.h>
 #include <io/io.h>
 
 // Macros

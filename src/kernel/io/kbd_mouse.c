@@ -59,10 +59,45 @@ void keyboard_init() {
     km1[0x35] = '/';
     km1[0x36] = '\0';
     km1[0x37] = '*';
+    km1[0x38] = '\0';
+    km1[0x39] = ' ';
+    km1[0x3a] = '\0';
+    km1[0x3b] = '\0';
+    km1[0x3c] = '\0';
+    km1[0x3d] = '\0';
+    km1[0x3e] = '\0';
+    km1[0x3f] = '\0';
+    km1[0x40] = '\0';
+    km1[0x41] = '\0';
+    km1[0x42] = '\0';
+    km1[0x43] = '\0';
+    km1[0x44] = '\0';
+    km1[0x45]= '\0';
+    km1[0x46] = '\0';
+}
+
+uint8_t is_letter(char character) {
+    uint8_t c = (uint8_t)character;
+    return (0x41 <= c || c <= 0x5A) || (0x61 <= c || c <= 0x7A);
 }
 
 char keyboard_get_char(uint8_t scancode) {
-    return km1[scancode];
+    if (scancode == 0x2A) {
+        keyboard_shift = 255;
+        return 0;
+    }
+    if (scancode == 0xAA) {
+        keyboard_shift = 0;
+        return 0;
+    }
+    if (!keyboard_shift) {
+        return km1[scancode];
+    } else {
+        if (is_letter(km1[scancode])) {
+            return (char)(((uint8_t)km1[scancode]) - 0x20);
+        }
+    }
+    return 0;
 }
 
 void keyboard_handler() {
@@ -71,5 +106,5 @@ void keyboard_handler() {
     if (c)
         vga_put(c, VGA_COLOR(VGA_WHITE, VGA_BLACK));
 
-    outb(0x20, 0x20); // Send EOI to Master PIC
+    outb(0x20, 0x20);
 }

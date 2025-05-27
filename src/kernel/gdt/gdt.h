@@ -1,7 +1,6 @@
 #ifndef GDT_H
 #define GDT_H
 
-#include <log/log.h>
 #include <stdint.h>
 
 // Macros
