@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <idt/isr.h>
+#include <buffer/buffer.h>
 
 struct mouse_info {
     union

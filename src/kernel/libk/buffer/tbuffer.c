@@ -14,3 +14,7 @@ void tbuffer_fill(tbuffer_t* buffer, uint16_t c) {
 void tbuffer_set(tbuffer_t* buffer, uint16_t c, size_t x, size_t y) {
     buffer->address[y * buffer->width + x] = c;
 }
+
+short tbuffer_get(tbuffer_t* buffer, size_t x, size_t y) {
+    return buffer->address[y * buffer->width + x];
+}

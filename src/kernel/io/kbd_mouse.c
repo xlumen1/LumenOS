@@ -145,7 +145,18 @@ char keyboard_get_char(uint8_t scancode) {
         return 0;
     
     case 0x0E:
-        vga_pos(vga_col - 1, vga_row);
+        if (vga_col > 0) {
+            vga_pos(vga_col - 1, vga_row);
+        } else {
+            vga_pos(VGA_WIDTH - 1, vga_row - 1);
+            serial_write_char((char)(tbuffer_get(&vga_buffer, vga_col, vga_row) & 0x00FF), COM1);
+            if ((char)(tbuffer_get(&vga_buffer, vga_col, vga_row) & 0x00FF) == '\0') {
+                while ((char)(tbuffer_get(&vga_buffer, vga_col, vga_row) & 0x00FF) == '\0') {
+                    vga_pos(vga_col - 1, vga_row);
+                }
+                vga_pos(vga_col + 1, vga_row);
+            }
+        }
         vga_set('\0', VGA_COLOR(VGA_WHITE, VGA_BLACK), vga_col, vga_row);
         return 0;
     
