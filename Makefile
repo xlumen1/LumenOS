@@ -53,6 +53,3 @@ all: build run
 debug: build
 	qemu-system-i386 -s -S --kernel $(BUILD)/kernel.bin &
 	gdb $(BUILD)/kernel.bin --silent -ex "target remote localhost:1234"
-
-print-obj:
-	@echo $(OBJ)

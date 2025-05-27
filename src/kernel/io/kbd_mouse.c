@@ -180,3 +180,12 @@ void keyboard_handler() {
 
     outb(0x20, 0x20);
 }
+
+void mouse_init() {
+	
+}
+
+void mouse_handler() {
+	struct mouse_info info;
+
+}
