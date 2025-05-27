@@ -74,11 +74,38 @@ void keyboard_init() {
     km1[0x44] = '\0';
     km1[0x45]= '\0';
     km1[0x46] = '\0';
+    km1[0x47] = '7';
+    km1[0x48] = '8';
+    km1[0x49] = '9';
+    km1[0x4a] = '-';
+    km1[0x4b] = '4';
+    km1[0x4c] = '5';
+    km1[0x4d] = '6';
+    km1[0x4e] = '+';
+    km1[0x4f] = '1';
+    km1[0x50] = '2';
+    km1[0x51] = '3';
+    km1[0x52] = '0';
+    km1[0x53] = '.';
 }
 
 uint8_t is_letter(char character) {
     uint8_t c = (uint8_t)character;
-    return (0x41 <= c || c <= 0x5A) || (0x61 <= c || c <= 0x7A);
+    return (('A' <= c) && (c <= 'Z')) || (('a' <= c) && (c <= 'z'));
+}
+
+uint8_t is_number(char character) {
+    uint8_t c = (uint8_t)character;
+    return (('0' <= c) && (c <= '9'));
+}
+
+char apply_shift(char c) {
+    if (!keyboard_shift)
+        return c;
+    if (is_letter(c))
+        return c - 0x20;
+    if (is_number(c))
+        return c - 0x10;
 }
 
 char keyboard_get_char(uint8_t scancode) {
@@ -90,14 +117,40 @@ char keyboard_get_char(uint8_t scancode) {
         keyboard_shift = 0;
         return 0;
     }
-    if (!keyboard_shift) {
-        return km1[scancode];
-    } else {
-        if (is_letter(km1[scancode])) {
-            return (char)(((uint8_t)km1[scancode]) - 0x20);
-        }
+    if (scancode == 0x1C) {
+        vga_newline();
+        return 0;
     }
-    return 0;
+    switch (scancode)
+    {
+    case 0x2A:
+        keyboard_shift = 255;
+        return 0;
+    
+    case 0x36:
+        keyboard_shift = 255;
+        return 0;
+
+    case 0xAA:
+        keyboard_shift = 0;
+        return 0;
+    
+    case 0xB6:
+        keyboard_shift = 0;
+        return 0;
+    
+    case 0x1C:
+        vga_newline();
+        return 0;
+    
+    case 0x0E:
+        vga_pos(vga_col - 1, vga_row);
+        vga_set('\0', VGA_COLOR(VGA_WHITE, VGA_BLACK), vga_col, vga_row);
+        return 0;
+    
+    default:
+        return apply_shift(km1[scancode]);
+    }
 }
 
 void keyboard_handler() {

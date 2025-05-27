@@ -12,17 +12,14 @@ void kmain()
     vga_init();
     vga_clear(VGA_COLOR(VGA_WHITE, VGA_BLACK));
 
+    vga_cursor_setmode(1);
+    vga_cursor_pos(0, 0);
+
     vga_pos(0, 0);
 
-    outb(0x3D4, 0x0A);
-	outb(0x3D5, 0x20);
-
     gdt_install();
-    printf("GDT loaded\n");
-
     idt_install();
     isr_install();
-    printf("IDT loaded\n");
 
     keyboard_init();
     

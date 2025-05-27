@@ -47,6 +47,11 @@ void vga_newline();
 void vga_clear(uint8_t color);
 void vga_scroll(uint8_t lines);
 
+// CURSOR FUNCTIONS
+
+void vga_cursor_setmode(uint8_t enable);
+void vga_cursor_pos(uint8_t x, uint8_t y);
+
 // TEXT FUNCTIONS
 
 void vga_set(char a, uint8_t color, uint8_t col, uint8_t row);
