@@ -66,7 +66,7 @@ make debug
 
 Contributions are welcome!  
 Feel free to fork the repository, open issues, or submit pull requests.  
-If you’re new to OS development, this is a decent place to start learning, although I do recommend looking at the [OsDev Wiki](https://wiki.osdev.org) for more info. Although, a word of warning, my code is terrible and filled with bad practices. I am in no way a professional.
+If you’re new to OS development, this is a decent place to start learning, although I do recommend looking at the [OsDev Wiki](https://wiki.osdev.org) for more info. Although, a word of warning, my code is terrible and filled with bad practices. I am in no way a professional. For proof, I accidentally deleted my EFI partition the other day, so ask me about that.
 
 ## License
 
