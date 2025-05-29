@@ -18,73 +18,93 @@ def unpack_entry(entry_bytes):
         'end_byte': ebt,
     }
 
-def read_sector(f, sector_num):
-    f.seek(sector_num * SECTOR_SIZE)
-    data = f.read(SECTOR_SIZE)
-    print(f"[DEBUG] Read sector {sector_num} (offset {sector_num*SECTOR_SIZE}), {len(data)} bytes")
-    return data
+def read_dir_table(f, offset, count):
+    f.seek(offset)
+    entries = []
+    for _ in range(count):
+        entry_bytes = f.read(ENTRY_SIZE)
+        if len(entry_bytes) != ENTRY_SIZE:
+            break
+        entry = unpack_entry(entry_bytes)
+        entries.append(entry)
+    return entries
+
+def print_tree(f, offset, count, indent=0, path="", visited=None, skip_empty_root=True, max_entries=None, printed=[0]):
+    if visited is None:
+        visited = set()
+    entries = read_dir_table(f, offset, count)
+    # Track names at this level to avoid duplicate printing
+    seen = set()
+    for entry in entries:
+        if max_entries is not None and printed[0] >= max_entries:
+            return
+        # Skip printing empty directory entries (name is empty)
+        if entry['name'] == "":
+            continue
+        # Skip duplicate names at this level
+        if entry['name'] in seen:
+            continue
+        seen.add(entry['name'])
+        prefix = "[D]" if not entry['isfile'] else "[F]"
+        print("  " * indent + f"{prefix} {entry['name']}")
+        printed[0] += 1
+        full_path = os.path.join(path, entry['name'])
+        # Prevent infinite recursion by tracking visited directory offsets
+        if not entry['isfile'] and entry['size'] == 0 and (entry['start_block'] != 0 or entry['start_byte'] != 0):
+            child_offset = entry['start_block'] * SECTOR_SIZE + entry['start_byte']
+            if child_offset in visited:
+                continue
+            visited.add(child_offset)
+            end_offset = entry['end_block'] * SECTOR_SIZE + entry['end_byte']
+            total_bytes = end_offset - child_offset + 1
+            child_count = total_bytes // ENTRY_SIZE
+            print_tree(f, child_offset, child_count, indent + 1, full_path, visited, skip_empty_root, max_entries, printed)
 
 def read_file_data(f, entry):
     size = entry['size']
     start = entry['start_block'] * SECTOR_SIZE + entry['start_byte']
     f.seek(start)
-    data = f.read(size)
-    print(f"[DEBUG] Reading file '{entry['name']}' data from {start} (size {size})")
-    return data
+    return f.read(size)
 
-def read_dir_table(f, offset, count):
-    f.seek(offset)
-    print(f"[DEBUG] Reading directory table at offset {offset} for {count} entries")
-    entries = []
-    for i in range(count):
-        entry_bytes = f.read(ENTRY_SIZE)
-        if len(entry_bytes) != ENTRY_SIZE:
-            print(f"[ERROR] Could not read full entry {i} at offset {offset + i*ENTRY_SIZE}")
-            break
-        entry = unpack_entry(entry_bytes)
-        print(f"[DEBUG] Entry {i}: {entry}")
-        entries.append(entry)
-    return entries
-
-def print_tree(f, offset, count, indent=0, path=""):
-    print(f"{'  '*indent}[DEBUG] print_tree at offset {offset}, count {count}, path '{path}'")
+def extract_all(f, offset, count, base_path, visited=None, max_entries=None, extracted=[0]):
+    if visited is None:
+        visited = set()
     entries = read_dir_table(f, offset, count)
+    seen = set()
     for entry in entries:
-        prefix = "[D]" if not entry['isfile'] else "[F]"
-        print("  " * indent + f"{prefix} {entry['name']}")
-        full_path = os.path.join(path, entry['name'])
-        if not entry['isfile'] and entry['size'] == 0 and (entry['start_block'] != 0 or entry['start_byte'] != 0):
-            child_offset = entry['start_block'] * SECTOR_SIZE + entry['start_byte']
-            end_offset = entry['end_block'] * SECTOR_SIZE + entry['end_byte']
-            total_bytes = end_offset - child_offset + 1
-            child_count = total_bytes // ENTRY_SIZE
-            print(f"{'  '*(indent+1)}[DEBUG] Descending into directory '{entry['name']}' at offset {child_offset} with {child_count} entries")
-            print_tree(f, child_offset, child_count, indent + 1, full_path)
-
-def extract_all(f, offset, count, base_path):
-    print(f"[DEBUG] extract_all at offset {offset}, count {count}, base_path '{base_path}'")
-    entries = read_dir_table(f, offset, count)
-    for entry in entries:
+        if max_entries is not None and extracted[0] >= max_entries:
+            return
+        # Skip empty name entries
+        if entry['name'] == "":
+            continue
+        # Skip duplicate names at this level
+        if entry['name'] in seen:
+            continue
+        seen.add(entry['name'])
         full_path = os.path.join(base_path, entry['name'])
         if entry['isfile']:
-            data = read_file_data(f, entry)
             os.makedirs(os.path.dirname(full_path), exist_ok=True)
-            print(f"[DEBUG] Extracting file '{full_path}', size {len(data)} bytes")
+            data = read_file_data(f, entry)
             with open(full_path, "wb") as out:
                 out.write(data)
+            extracted[0] += 1
         else:
+            os.makedirs(full_path, exist_ok=True)
             if entry['size'] == 0 and (entry['start_block'] != 0 or entry['start_byte'] != 0):
                 child_offset = entry['start_block'] * SECTOR_SIZE + entry['start_byte']
+                if child_offset in visited:
+                    continue
+                visited.add(child_offset)
                 end_offset = entry['end_block'] * SECTOR_SIZE + entry['end_byte']
                 total_bytes = end_offset - child_offset + 1
                 child_count = total_bytes // ENTRY_SIZE
-                print(f"[DEBUG] Descending into directory '{entry['name']}' at offset {child_offset} with {child_count} entries for extraction")
-                os.makedirs(full_path, exist_ok=True)
-                extract_all(f, child_offset, child_count, full_path)
+                extract_all(f, child_offset, child_count, full_path, visited, max_entries, extracted)
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: rdfs.py <image> [--extract <outdir>]")
+    if len(sys.argv) < 2 or '--help' in sys.argv or '-h' in sys.argv:
+        print("Usage:")
+        print("  rdfs.py <image>                # Display LuFS image as a tree")
+        print("  rdfs.py <image> --extract <outdir>  # Extract all files to <outdir>")
         return
 
     image_path = sys.argv[1]
@@ -99,14 +119,18 @@ def main():
 
         entry_count = struct.unpack("<I", f.read(4))[0]
         root_table_offset = SECTOR_SIZE
-        print(f"[DEBUG] LuFS image detected with {entry_count} entries at offset {root_table_offset}")
-        print("Filesystem contents:")
-        print_tree(f, root_table_offset, entry_count)
+        print("=== Filesystem metadata ===")
+        print(f"Entry count: {entry_count}")
+        if entry_count <= 0:
+            print("No entries found in the filesystem.")
+            return
+        print("=== Filesystem contents ===")
+        print_tree(f, root_table_offset, entry_count, max_entries=entry_count - 1) # Ignore root
 
         if extract:
             print(f"\nExtracting to: {outdir}")
             os.makedirs(str(outdir), exist_ok=True)
-            extract_all(f, root_table_offset, entry_count, outdir)
+            extract_all(f, root_table_offset, entry_count, outdir, max_entries=entry_count - 1)
 
 if __name__ == "__main__":
     main()
