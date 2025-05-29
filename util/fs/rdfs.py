@@ -66,30 +66,35 @@ def read_file_data(f, entry):
     f.seek(start)
     return f.read(size)
 
-def extract_all(f, offset, count, base_path, visited=None, max_entries=None, extracted=[0]):
+def extract_all(f, offset, count, base_path, visited=None, max_entries=None, extracted=[0], entry_indices=None):
     if visited is None:
         visited = set()
     entries = read_dir_table(f, offset, count)
+    # At the top-level, skip the root entry (first entry)
+    if offset == SECTOR_SIZE:
+        entries = entries[1:]
+        base_index = 1
+    else:
+        base_index = 0
+    if entry_indices is None:
+        entry_indices = list(range(base_index, base_index + len(entries)))
     seen = set()
-    for entry in entries:
+    for idx, entry in zip(entry_indices, entries):
         if max_entries is not None and extracted[0] >= max_entries:
             return
-        # Skip empty name entries
-        if entry['name'] == "":
-            continue
-        # Skip duplicate names at this level
-        if entry['name'] in seen:
+        if not entry['name'] or entry['name'] in seen:
             continue
         seen.add(entry['name'])
         full_path = os.path.join(base_path, entry['name'])
+        extracted[0] += 1
         if entry['isfile']:
             os.makedirs(os.path.dirname(full_path), exist_ok=True)
             data = read_file_data(f, entry)
             with open(full_path, "wb") as out:
                 out.write(data)
-            extracted[0] += 1
         else:
             os.makedirs(full_path, exist_ok=True)
+            # Only recurse if this directory has a valid table
             if entry['size'] == 0 and (entry['start_block'] != 0 or entry['start_byte'] != 0):
                 child_offset = entry['start_block'] * SECTOR_SIZE + entry['start_byte']
                 if child_offset in visited:
@@ -98,7 +103,10 @@ def extract_all(f, offset, count, base_path, visited=None, max_entries=None, ext
                 end_offset = entry['end_block'] * SECTOR_SIZE + entry['end_byte']
                 total_bytes = end_offset - child_offset + 1
                 child_count = total_bytes // ENTRY_SIZE
-                extract_all(f, child_offset, child_count, full_path, visited, max_entries, extracted)
+                # Calculate entry indices for children
+                child_indices = list(range(child_count))
+                if child_count > 0:
+                    extract_all(f, child_offset, child_count, full_path, visited, max_entries, extracted, child_indices)
 
 def main():
     if len(sys.argv) < 2 or '--help' in sys.argv or '-h' in sys.argv:
