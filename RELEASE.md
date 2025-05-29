@@ -3,3 +3,5 @@
 - Better keyboard support
 - New cursor
 - Functional Scrolling
+- Designed LuFS Filesystem Standard
+- Made MKFS and RDFS utilities
