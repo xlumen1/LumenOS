@@ -2,3 +2,4 @@
 - Changed license tp CC0-1.0
 - Better keyboard support
 - New cursor
+- Functional Scrolling
