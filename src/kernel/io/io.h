@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <idt/isr.h>
 #include <buffer/buffer.h>
+#include <vga/vga.h>
 
 struct mouse_info {
     union

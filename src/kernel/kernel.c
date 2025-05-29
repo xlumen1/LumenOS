@@ -27,7 +27,9 @@ void kmain()
 
     serial_init(COM1);
     serial_write("Serial Debug Connection Established\n", COM1);
+    uint32_t i = 0;
     while (1) {
-
+        printf("[%d]: LumenOS Commit #100\n", i);
+        i++;
     }
 }
