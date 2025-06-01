@@ -14,7 +14,7 @@ OUT := $(BUILD)/out
 ISO := $(BUILD)/iso
 
 # Flags
-CCFLAGS := -m32 --static -ffreestanding -c -g -nostdinc -I$(KERNEL)/libk -I$(KERNEL) -I$(STDLIB) -Wextra -Wall
+CCFLAGS := -m32 --static -ffreestanding -c -g -nostdinc -I$(KERNEL) -I$(STDLIB) -Wextra -Wall
 LDFLAGS := -m elf_i386 -T $(BUILD)/linker.ld -static -nostdlib -g
 
 # Build files
