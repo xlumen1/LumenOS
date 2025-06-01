@@ -6,6 +6,13 @@
 #include <io/io.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <elf/elf.h>
+#include "test_elf.h"
+
+__attribute__((section(".exports")))
+void (*kernel_exports[])(const char *, ...) = {
+    printf
+};
 
 void kmain()
 {
@@ -23,6 +30,8 @@ void kmain()
     
     // I sure do love volatiles
     __asm__ volatile ("sti");
+
+    elf_load((uint8_t*)test_elf, (size_t)test_elf_len);
 
     while (1) {
         

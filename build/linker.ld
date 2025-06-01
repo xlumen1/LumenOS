@@ -25,6 +25,11 @@ SECTIONS
         *(.bss)
     }
 
+    .exports 0x300000 : ALIGN(4K)
+    {
+        KEEP(*(.exports))
+    }
+
     .debug_info 0 : { *(.debug_info) }
     .debug_abbrev 0 : { *(.debug_abbrev) }
     .debug_line 0 : { *(.debug_line) }
