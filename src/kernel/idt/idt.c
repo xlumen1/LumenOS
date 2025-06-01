@@ -3,8 +3,6 @@
 struct idt_entry idt[IDT_ENTRIES];
 struct idt_ptr idtp;
 
-extern void idt_load();
-
 void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
     idt[num].base_lo = base & 0xFFFF;
     idt[num].base_hi = (base >> 16) & 0xFFFF;
@@ -23,7 +21,9 @@ void idt_install() {
     }
 
     isr_pic_remap();
-    idt_load();
+
+    // Inline assembly my beloved
+    __asm__ volatile ("lidt idtpt");
 }
 
 extern void isr0();

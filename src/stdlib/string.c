@@ -7,7 +7,7 @@ void* memmove(void* dest, const void* src, size_t size) {
     if (d == s || size == 0)
         return dest;
 
-    if (d < s) {
+    if (d < s || d >= s + size) {
         for (size_t i = 0; i < size; i++) {
             d[i] = s[i];
         }
@@ -17,6 +17,26 @@ void* memmove(void* dest, const void* src, size_t size) {
         }
     }
 
+    return dest;
+}
+
+void* memcpy(void* dest, const void* src, size_t size) {
+    unsigned char *d = (unsigned char*)dest;
+    const unsigned char *s = (const unsigned char*)src;
+
+    for (size_t i = 0; i < size; i++) {
+        d[i] = s[i];
+    }
+
+    return dest;
+}
+
+void* memset(void* dest, int value, size_t size) {
+    unsigned char *d = (unsigned char*)dest;
+    unsigned char v = (unsigned char)value;
+    for (size_t i = 0; i < size; i++) {
+        d[i] = v;
+    }
     return dest;
 }
 

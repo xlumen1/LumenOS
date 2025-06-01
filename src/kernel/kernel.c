@@ -11,10 +11,7 @@ void kmain()
 {
     vga_init();
     vga_clear(VGA_COLOR(VGA_WHITE, VGA_BLACK));
-
     vga_cursor_setmode(1);
-    vga_cursor_pos(0, 0);
-
     vga_pos(0, 0);
 
     gdt_install();
@@ -22,12 +19,11 @@ void kmain()
     isr_install();
 
     keyboard_init();
+    serial_init(COM1);
     
+    // I sure do love volatiles
     __asm__ volatile ("sti");
 
-    serial_init(COM1);
-    serial_write("Serial Debug Connection Established\n", COM1);
-    
     while (1) {
         
     }

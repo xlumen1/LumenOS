@@ -1,6 +1,8 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
+// This is some old code
+
 #include <stdint.h>
 
 typedef struct

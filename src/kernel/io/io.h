@@ -7,6 +7,8 @@
 #include <buffer/buffer.h>
 #include <vga/vga.h>
 
+// I'll add mouse support some day
+
 struct mouse_info {
     union
     {
