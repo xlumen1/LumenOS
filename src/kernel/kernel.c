@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <elf/elf.h>
+#include <disk/disk.h>
 #include "test_elf.h"
 
 __attribute__((section(".exports")))
@@ -25,13 +26,23 @@ void kmain()
     idt_install();
     isr_install();
 
+    disk_init();
+
     keyboard_init();
     serial_init(COM1);
     
     // I sure do love volatiles
     __asm__ volatile ("sti");
 
-    elf_load((uint8_t*)test_elf, (size_t)test_elf_len);
+    uint8_t mbr[512];
+
+    disk_read(0, mbr, 1);
+
+    for (int i = 0; i < 512; i++) {
+        printf("%x ", mbr[i]);
+    }
+
+    // elf_load((uint8_t*)test_elf, (size_t)test_elf_len);
 
     while (1) {
         
