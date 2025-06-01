@@ -1,7 +1,6 @@
 #include <vga/vga.h>
 #include <buffer/buffer.h>
 #include <gdt/gdt.h>
-#include <time/time.h>
 #include <idt/idt.h>
 #include <serial/serial.h>
 #include <io/io.h>

@@ -12,6 +12,7 @@ void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
     idt[num].flags   = flags;
 }
 
+extern void idt_load();
 void idt_install() {
     idtp.limit = sizeof(struct idt_entry) * IDT_ENTRIES - 1;
     idtp.base  = (uint32_t)&idt;
@@ -22,8 +23,8 @@ void idt_install() {
 
     isr_pic_remap();
 
-    // Inline assembly my beloved
-    __asm__ volatile ("lidt idtpt");
+    // Inline assembly betrayed me.
+    idt_load();
 }
 
 extern void isr0();

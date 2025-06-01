@@ -4,6 +4,7 @@
 // This is some old code
 
 #include <stdint.h>
+#include <stddef.h>
 
 typedef struct
 {
