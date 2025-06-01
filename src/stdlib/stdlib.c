@@ -27,7 +27,7 @@ void* malloc(size_t size) {
     }
 
     if (heap_used + size > HEAP_SIZE) {
-        serial_write("Out of memory error! Free up some blocks", COM1);
+        serial_write("Out of memory error! Free up some blocks!\n", COM1);
         return NULL;
     }
     curr = (BlockHeader*)(heap + heap_used);
