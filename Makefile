@@ -22,7 +22,7 @@ SRC :=  $(shell find $(KERNEL) -type f -name "*.c") $(shell find $(STDLIB) -type
 OBJ :=  $(patsubst %.c,$(OUT)/%.o,$(filter %.c,$(SRC))) \
     	$(patsubst %.s,$(OUT)/%.o,$(filter %.s,$(SRC)))
 
-build: $(OBJ)
+build: $(OBJ) fs
 	$(LD) $(LDFLAGS) -o $(BUILD)/kernel.bin $(OBJ)
 
 $(OUT)/$(KERNEL)/%.o: $(KERNEL)/%.c
@@ -43,13 +43,21 @@ clean:
 iso: build
 	mkdir -p $(ISO)/boot/grub
 	cp $(BUILD)/kernel.bin $(ISO)/boot/kernel.bin
+	cp $(OUT)/fs.img $(ISO)/boot/fs.img
 	$(GRUB) -o $(BUILD)/os.iso $(ISO)
 
-run: build
-	qemu-system-i386 --kernel $(BUILD)/kernel.bin -serial stdio
+run: iso
+	qemu-system-i386 --cdrom $(BUILD)/os.iso -serial stdio
 
 all: build run
 
-debug: build
-	qemu-system-i386 -s -S --kernel $(BUILD)/kernel.bin &
+debug: iso
+	qemu-system-i386 -s -S --cdrom $(BUILD)/os.iso &
 	gdb $(BUILD)/kernel.bin --silent -ex "target remote localhost:1234"
+
+fs: $(OUT)/fs.img
+
+$(OUT)/fs.img:
+	mkdir -p $(OUT)
+	util/fs/createstd.sh
+	mv util/fs/fs.img $@

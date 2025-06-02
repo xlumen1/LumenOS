@@ -54,6 +54,7 @@ dkms.conf
 # Os Build Files
 *.iso
 *.bin
+*.img
 
 # Vscode
 .vscode/
