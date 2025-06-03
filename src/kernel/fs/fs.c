@@ -45,11 +45,8 @@ void fs_use_memdisk(void* fsimg_addr, uint32_t fsimg_size) {
     current_disk = &backend;
 }
 
-// Helper macros for backend calls
 #define disk_read(sector, buf, count)  (current_disk->read((sector), (buf), (count)))
 #define disk_write(sector, buf, count) (current_disk->write((sector), (buf), (count)))
-
-// Basicly just pseudo-code, I'll write the real code later
 
 static int read_header(char* magic, uint32_t* entry_count) {
     uint8_t buf[8];
@@ -86,10 +83,8 @@ int lufs_mount() {
     return 0;
 }
 
-// Forward declaration
 static int read_dir_children(const struct FsEntry* dir, struct FsEntry* out_entries, uint32_t* out_count);
 
-// Helper: read all entries into a buffer
 static int read_entries(struct FsEntry* entries, uint32_t* out_count) {
     uint8_t buf[ENTRY_SIZE * ENTRIES_PER_SECTOR];
     uint32_t count = 0;
@@ -106,7 +101,6 @@ static int read_entries(struct FsEntry* entries, uint32_t* out_count) {
     return 0;
 }
 
-// Helper: write entry at index
 static int write_entry(uint32_t idx, struct FsEntry* entry) {
     uint32_t sector = 2 + idx / ENTRIES_PER_SECTOR;
     uint32_t offset = idx % ENTRIES_PER_SECTOR;
@@ -116,7 +110,6 @@ static int write_entry(uint32_t idx, struct FsEntry* entry) {
     return disk_write(sector, buf, 1);
 }
 
-// Helper: find free entry slot
 static int find_free_entry(uint32_t* idx) {
     uint8_t buf[ENTRY_SIZE * ENTRIES_PER_SECTOR];
     for (int s = 2; s < 2 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++s) {
@@ -132,7 +125,6 @@ static int find_free_entry(uint32_t* idx) {
     return -1;
 }
 
-// Helper: find entry by name
 static int find_entry(const char* path, struct FsEntry* out_entry, uint32_t* idx) {
     uint8_t buf[ENTRY_SIZE * ENTRIES_PER_SECTOR];
     for (int s = 2; s < 2 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++s) {
@@ -173,7 +165,6 @@ int lufs_create(const char* path, uint8_t isfile, char* data, uint32_t size) {
         }
     }
 
-    // Write entry
     uint32_t idx;
     if (find_free_entry(&idx) != 0) return -1;
     if (write_entry(idx, &entry) != 0) return -1;
@@ -218,7 +209,6 @@ int lufs_delete(struct FsEntry* entry) {
 // UTIL OPS
 
 struct FsEntry lufs_frompath(const char* path) {
-    // Split path and walk directories
     if (!path || !*path) {
         // Return root directory (first entry in entry table)
         uint8_t buf[ENTRY_SIZE];
@@ -260,7 +250,7 @@ struct FsEntry* lufs_children(struct FsEntry* directory) {
 }
 
 uint8_t lufs_isnull(struct FsEntry* entry) {
-    return entry->name[0] == '?';
+    return entry->name[0] == '?' && entry->isfile == 255;
 }
 
 uint8_t lufs_isfile(struct FsEntry* entry) {

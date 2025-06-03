@@ -60,14 +60,17 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
     if (!children) {
         printf("Failed to get children of root directory\n");
     } else {
+        printf("%s:\nSize: %u\nIsfile: %s\n", children[0].name, children[0].size, children[0].isfile ? "Yes" : "No");
         printf("Children of root directory:\n");
         for (int i = 0; children[i].name[0] != '\0'; ++i) {
             printf(" - %s, size: %u bytes, isfile: %d\n", children[i].name, children[i].size, children[i].isfile);
         }
     }
+    serial_write("Test1", COM1);
     free(children);
-
-    struct FsEntry test_file = lufs_frompath("/doc/welcome.txt");
+    serial_write("Test2", COM1);
+    struct FsEntry test_file = lufs_frompath("/test.txt");
+    serial_write("Test3", COM1);
     if (lufs_isnull(&test_file)) {
         printf("File not found: doc/welcome.txt\n");
     } else {

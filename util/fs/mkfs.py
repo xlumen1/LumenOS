@@ -112,7 +112,8 @@ def makefs():
     # Write directory tables
     for dpath, dentry in dir_order:
         table = b''
-        for entry in dir_tree.get(dpath, []):
+        entries_in_dir = dir_tree.get(dpath, [])
+        for entry in entries_in_dir:
             if entry.isfile:
                 sb, eb, sbt, ebt = file_offsets[(dpath, entry.name)]
                 table += pack_entry(entry.name, entry.size, True, sb, eb, sbt, ebt)
@@ -120,13 +121,16 @@ def makefs():
                 child_path = os.path.join(dpath, entry.name) if dpath != "" else entry.name
                 child_count = len(dir_tree.get(child_path, []))
                 if child_count == 0:
-                    # Empty dir: must point to (0,0,0,0)
                     table += pack_entry(entry.name, 0, False, 0, 0, 0, 0)
                 else:
                     offset, size = dir_offsets[child_path]
                     sb = offset // SECTOR_SIZE
                     eb = (offset + size - 1) // SECTOR_SIZE
-                    sbt = offset % SECTOR_SIZE
+                    # If this is the root entry, set start_byte to ENTRY_SIZE
+                    if dpath == "" and entry.name == "":
+                        sbt = ENTRY_SIZE
+                    else:
+                        sbt = offset % SECTOR_SIZE
                     ebt = (offset + size - 1) % SECTOR_SIZE
                     table += pack_entry(entry.name, 0, False, sb, eb, sbt, ebt)
         mem_disk += table
