@@ -34,12 +34,16 @@ void kmain()
     // I sure do love volatiles
     __asm__ volatile ("sti");
 
+    serial_write("Kernel Loaded", COM1);
+
     uint8_t mbr[512];
-
-    disk_read(0, mbr, 1);
-
-    for (int i = 0; i < 512; i++) {
-        printf("%x ", mbr[i]);
+    char* z = malloc(sizeof(int) * 4);
+    int res = disk_read(0, mbr, 1);
+    printf("disk_read returned: %d\n", res);
+    itoa(res, z, 10);
+    serial_write(z, COM1);
+    if (res != 0) {
+        while (1);
     }
 
     // elf_load((uint8_t*)test_elf, (size_t)test_elf_len);
