@@ -38,7 +38,7 @@ $(OUT)/$(KERNEL)/%.o: $(KERNEL)/%.s
 	$(AS) --32 -g $< -o $@
 
 clean:
-	rm -fr $(OUT) $(BUILD)/kernel.bin $(BUILD)/os.iso
+	rm -fr $(OUT) $(BUILD)/kernel.bin $(BUILD)/os.iso $(BUILD)/iso/boot/kernel.bin $(BUILD)/iso/boot/fs.img
 
 iso: build
 	mkdir -p $(ISO)/boot/grub
