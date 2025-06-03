@@ -22,6 +22,8 @@ mov $stack_top, %esp
 
 cli
 
+push %ebx        # Multiboot info pointer
+push %eax        # Multiboot magic
 call kmain
 
 hlt

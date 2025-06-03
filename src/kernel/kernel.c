@@ -8,14 +8,15 @@
 #include <stdlib.h>
 #include <elf/elf.h>
 #include <disk/disk.h>
-#include "test_elf.h"
+#include <multiboot/multiboot.h>
+#include <fs/fs.h>
 
 __attribute__((section(".exports")))
 void (*kernel_exports[])(const char *, ...) = {
     printf
 };
 
-void kmain()
+void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
 {
     vga_init();
     vga_clear(VGA_COLOR(VGA_WHITE, VGA_BLACK));
@@ -36,18 +37,51 @@ void kmain()
 
     serial_write("Kernel Loaded", COM1);
 
-    uint8_t mbr[512];
-    char* z = malloc(sizeof(int) * 4);
-    int res = disk_read(0, mbr, 1);
-    printf("disk_read returned: %d\n", res);
-    itoa(res, z, 10);
-    serial_write(z, COM1);
-    if (res != 0) {
-        while (1);
+    // Access fs.img loaded as a GRUB module
+    void* fsimg_addr = NULL;
+    uint32_t fsimg_size = 0;
+    if (multiboot_find_fsimg(mb_info, &fsimg_addr, &fsimg_size)) {
+        printf("Found fs image at %p, size %u bytes\n", fsimg_addr, fsimg_size);
+        fs_use_memdisk(fsimg_addr, fsimg_size);
+    } else {
+        printf("Fs image not found as a GRUB module, assuming local install\n");
     }
 
-    // elf_load((uint8_t*)test_elf, (size_t)test_elf_len);
+    char* buffer = malloc(1024);
+    if (!buffer) {
+        printf("Failed to allocate memory for buffer\n");
+        return;
+    }
 
+    struct FsEntry root = lufs_frompath("");
+
+    printf("Root directory: %s, size: %u bytes, isfile: %d\n", root.name, root.size, root.isfile);
+    struct FsEntry* children = lufs_children(&root);
+    if (!children) {
+        printf("Failed to get children of root directory\n");
+    } else {
+        printf("Children of root directory:\n");
+        for (int i = 0; children[i].name[0] != '\0'; ++i) {
+            printf(" - %s, size: %u bytes, isfile: %d\n", children[i].name, children[i].size, children[i].isfile);
+        }
+    }
+    free(children);
+
+    struct FsEntry test_file = lufs_frompath("/doc/welcome.txt");
+    if (lufs_isnull(&test_file)) {
+        printf("File not found: doc/welcome.txt\n");
+    } else {
+        printf("Found file: %s, size: %u bytes, isfile: %d\n", test_file.name, test_file.size, test_file.isfile);
+        if (lufs_isfile(&test_file)) {
+            if (lufs_read(&test_file, (uint8_t*)buffer) == 0) {
+                printf("File content:\n%s\n", buffer);
+            } else {
+                printf("Failed to read file content\n");
+            }
+        }
+    }
+    free(buffer);
+    
     while (1) {
         
     }

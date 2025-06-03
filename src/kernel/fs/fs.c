@@ -1,11 +1,55 @@
 #include "fs.h"
 #include <string.h>
+#include <stdint.h>
+
+// Disk backend abstraction
+typedef struct {
+    int (*read)(uint32_t sector, void* buf, uint32_t count);
+    int (*write)(uint32_t sector, const void* buf, uint32_t count);
+    void* ctx;
+} disk_backend_t;
+
+static disk_backend_t* current_disk = 0;
+
+// Memory disk backend
+typedef struct {
+    uint8_t* base;
+    uint32_t sector_size;
+    uint32_t num_sectors;
+} memdisk_ctx_t;
+
+static int memdisk_read(uint32_t sector, void* buf, uint32_t count) {
+    memdisk_ctx_t* ctx = (memdisk_ctx_t*)current_disk->ctx;
+    if (sector + count > ctx->num_sectors) return -1;
+    memcpy(buf, ctx->base + sector * ctx->sector_size, count * ctx->sector_size);
+    return 0;
+}
+
+static int memdisk_write(uint32_t sector, const void* buf, uint32_t count) {
+    memdisk_ctx_t* ctx = (memdisk_ctx_t*)current_disk->ctx;
+    if (sector + count > ctx->num_sectors) return -1;
+    memcpy(ctx->base + sector * ctx->sector_size, buf, count * ctx->sector_size);
+    return 0;
+}
+
+// Call this at boot with fsimg_addr and fsimg_size
+void fs_use_memdisk(void* fsimg_addr, uint32_t fsimg_size) {
+    static memdisk_ctx_t memdisk;
+    static disk_backend_t backend;
+    memdisk.base = (uint8_t*)fsimg_addr;
+    memdisk.sector_size = 512;
+    memdisk.num_sectors = fsimg_size / 512;
+    backend.read = memdisk_read;
+    backend.write = memdisk_write;
+    backend.ctx = &memdisk;
+    current_disk = &backend;
+}
+
+// Helper macros for backend calls
+#define disk_read(sector, buf, count)  (current_disk->read((sector), (buf), (count)))
+#define disk_write(sector, buf, count) (current_disk->write((sector), (buf), (count)))
 
 // Basicly just pseudo-code, I'll write the real code later
-
-#ifdef ENABLE_FS
-int disk_read(uint32_t sector, void* buf, uint32_t count);
-int disk_write(uint32_t sector, const void* buf, uint32_t count);
 
 static int read_header(char* magic, uint32_t* entry_count) {
     uint8_t buf[8];
@@ -28,7 +72,7 @@ int lufs_format() {
     const char magic[4] = {'L','u','F','S'};
     if (write_header(magic, 0) != 0) return -1;
     uint8_t zero[ENTRY_SIZE * ENTRIES_PER_SECTOR] = {0};
-    for (int i = 2; i < 10; ++i) {
+    for (int i = 2; i < 2 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++i) {
         if (disk_write(i, zero, 1) != 0) return -1;
     }
     return 0;
@@ -42,29 +86,177 @@ int lufs_mount() {
     return 0;
 }
 
+// Forward declaration
+static int read_dir_children(const struct FsEntry* dir, struct FsEntry* out_entries, uint32_t* out_count);
+
+// Helper: read all entries into a buffer
+static int read_entries(struct FsEntry* entries, uint32_t* out_count) {
+    uint8_t buf[ENTRY_SIZE * ENTRIES_PER_SECTOR];
+    uint32_t count = 0;
+    for (int s = 2; s < 2 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++s) {
+        if (disk_read(s, buf, 1) != 0) return -1;
+        for (int i = 0; i < ENTRIES_PER_SECTOR; ++i) {
+            struct FsEntry* e = (struct FsEntry*)(buf + i * ENTRY_SIZE);
+            if (e->name[0] != 0 && e->name[0] != '?') {
+                entries[count++] = *e;
+            }
+        }
+    }
+    *out_count = count;
+    return 0;
+}
+
+// Helper: write entry at index
+static int write_entry(uint32_t idx, struct FsEntry* entry) {
+    uint32_t sector = 2 + idx / ENTRIES_PER_SECTOR;
+    uint32_t offset = idx % ENTRIES_PER_SECTOR;
+    uint8_t buf[ENTRY_SIZE * ENTRIES_PER_SECTOR];
+    if (disk_read(sector, buf, 1) != 0) return -1;
+    memcpy(buf + offset * ENTRY_SIZE, entry, sizeof(struct FsEntry));
+    return disk_write(sector, buf, 1);
+}
+
+// Helper: find free entry slot
+static int find_free_entry(uint32_t* idx) {
+    uint8_t buf[ENTRY_SIZE * ENTRIES_PER_SECTOR];
+    for (int s = 2; s < 2 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++s) {
+        if (disk_read(s, buf, 1) != 0) return -1;
+        for (int i = 0; i < ENTRIES_PER_SECTOR; ++i) {
+            struct FsEntry* e = (struct FsEntry*)(buf + i * ENTRY_SIZE);
+            if (e->name[0] == 0 || e->name[0] == '?') {
+                *idx = (s - 2) * ENTRIES_PER_SECTOR + i;
+                return 0;
+            }
+        }
+    }
+    return -1;
+}
+
+// Helper: find entry by name
+static int find_entry(const char* path, struct FsEntry* out_entry, uint32_t* idx) {
+    uint8_t buf[ENTRY_SIZE * ENTRIES_PER_SECTOR];
+    for (int s = 2; s < 2 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++s) {
+        if (disk_read(s, buf, 1) != 0) return -1;
+        for (int i = 0; i < ENTRIES_PER_SECTOR; ++i) {
+            struct FsEntry* e = (struct FsEntry*)(buf + i * ENTRY_SIZE);
+            if (strncmp(e->name, path, 32) == 0) {
+                if (out_entry) *out_entry = *e;
+                if (idx) *idx = (s - 2) * ENTRIES_PER_SECTOR + i;
+                return 0;
+            }
+        }
+    }
+    return -1;
+}
+
 // CRUD OPS
 
 int lufs_create(const char* path, uint8_t isfile, char* data, uint32_t size) {
+    struct FsEntry entry;
+    memset(&entry, 0, sizeof(entry));
+    strncpy(entry.name, path, 31);
+    entry.name[31] = 0;
+    entry.size = size;
+    entry.isfile = isfile;
+
+    // Find free data blocks (naive: first available after entries)
+    uint32_t needed_blocks = (size + 511) / 512;
+    entry.start_block = 2 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); // Data starts after entries
+    entry.end_block = entry.start_block + needed_blocks - 1;
+    entry.start_byte = 0;
+    entry.end_byte = (size == 0) ? 0 : ((size - 1) % 512);
+
+    // Write file data
+    if (isfile && data && size > 0) {
+        for (uint32_t i = 0; i < needed_blocks; ++i) {
+            disk_write(entry.start_block + i, data + i * 512, 1);
+        }
+    }
+
+    // Write entry
+    uint32_t idx;
+    if (find_free_entry(&idx) != 0) return -1;
+    if (write_entry(idx, &entry) != 0) return -1;
     return 0;
 }
 
 int lufs_read(struct FsEntry* file, uint8_t* data) {
+    if (!file || !data || !file->isfile) return -1;
+    uint32_t blocks = file->end_block - file->start_block + 1;
+    uint32_t size = file->size;
+    for (uint32_t i = 0; i < blocks; ++i) {
+        uint32_t to_read = (size > 512) ? 512 : size;
+        if (disk_read(file->start_block + i, data + i * 512, 1) != 0) return -1;
+        size -= to_read;
+        if (size == 0) break;
+    }
     return 0;
 }
 
 int lufs_update(struct FsEntry* file, uint8_t* data) {
+    if (!file || !data || !file->isfile) return -1;
+    uint32_t blocks = file->end_block - file->start_block + 1;
+    uint32_t size = file->size;
+    for (uint32_t i = 0; i < blocks; ++i) {
+        uint32_t to_write = (size > 512) ? 512 : size;
+        if (disk_write(file->start_block + i, data + i * 512, 1) != 0) return -1;
+        size -= to_write;
+        if (size == 0) break;
+    }
     return 0;
 }
 
 int lufs_delete(struct FsEntry* entry) {
+    if (!entry) return -1;
+    struct FsEntry null_entry = NULL_ENTRY;
+    uint32_t idx;
+    if (find_entry(entry->name, NULL, &idx) != 0) return -1;
+    if (write_entry(idx, &null_entry) != 0) return -1;
     return 0;
 }
 
 // UTIL OPS
 
 struct FsEntry lufs_frompath(const char* path) {
-    struct FsEntry entry = NULL_ENTRY;
+    // Split path and walk directories
+    if (!path || !*path) {
+        // Return root directory (first entry in entry table)
+        uint8_t buf[ENTRY_SIZE];
+        if (disk_read(2, buf, 1) != 0) return (struct FsEntry)NULL_ENTRY;
+        return *(struct FsEntry*)buf;
+    }
+    char temp[256];
+    strncpy(temp, path, 255);
+    temp[255] = 0;
+    char* token = strtok(temp, "/");
+    struct FsEntry dir = lufs_frompath(""); // Start at root
+    struct FsEntry entry = dir;
+    while (token) {
+        // Find child with this name
+        struct FsEntry children[ENTRIES_PER_SECTOR * 8];
+        uint32_t count = 0;
+        if (read_dir_children(&dir, children, &count) != 0) return (struct FsEntry)NULL_ENTRY;
+        int found = 0;
+        for (uint32_t i = 0; i < count; ++i) {
+            if (strncmp(children[i].name, token, 32) == 0) {
+                entry = children[i];
+                dir = entry;
+                found = 1;
+                break;
+            }
+        }
+        if (!found) return (struct FsEntry)NULL_ENTRY;
+        token = strtok(NULL, "/");
+    }
     return entry;
+}
+
+struct FsEntry* lufs_children(struct FsEntry* directory) {
+    static struct FsEntry children[ENTRIES_PER_SECTOR * 8];
+    uint32_t count = 0;
+    if (!directory) return NULL;
+    if (read_dir_children(directory, children, &count) != 0) return NULL;
+    return children;
 }
 
 uint8_t lufs_isnull(struct FsEntry* entry) {
@@ -75,8 +267,35 @@ uint8_t lufs_isfile(struct FsEntry* entry) {
     return entry->isfile == 1;
 }
 
-struct FsEntry* lufs_children(struct FsEntry* directory) {
-    return NULL;
+// Directory child reading helper (implementation)
+static int read_dir_children(const struct FsEntry* dir, struct FsEntry* out_entries, uint32_t* out_count) {
+    if (!dir || !out_entries || !out_count) return -1;
+    if (!(dir->isfile == 0 && dir->size == 0)) return -1;
+    // If empty directory, pointers are all zero
+    if (dir->start_block == 0 && dir->end_block == 0 && dir->start_byte == 0 && dir->end_byte == 0) {
+        *out_count = 0;
+        return 0;
+    }
+    uint32_t start_offset = dir->start_block * 512 + dir->start_byte;
+    uint32_t end_offset = dir->end_block * 512 + dir->end_byte;
+    uint32_t total_bytes = end_offset - start_offset + 1;
+    uint32_t entry_count = total_bytes / ENTRY_SIZE;
+    if (entry_count == 0) {
+        *out_count = 0;
+        return 0;
+    }
+    uint8_t buf[ENTRY_SIZE];
+    uint32_t entries_read = 0;
+    for (uint32_t i = 0; i < entry_count; ++i) {
+        uint32_t offset = start_offset + i * ENTRY_SIZE;
+        uint32_t sector = offset / 512;
+        uint32_t sector_offset = offset % 512;
+        if (disk_read(sector, buf, 1) != 0) return -1;
+        struct FsEntry* e = (struct FsEntry*)(buf + sector_offset);
+        if (e->name[0] != 0 && e->name[0] != '?') {
+            out_entries[entries_read++] = *e;
+        }
+    }
+    *out_count = entries_read;
+    return 0;
 }
-
-#endif
