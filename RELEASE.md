@@ -5,3 +5,4 @@
 - Functional Scrolling
 - Designed and Implemented LuFS filesystem
 - Made MKFS and RDFS utilities
+- A functional LuFS file system
