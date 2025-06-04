@@ -10,6 +10,7 @@
 #include <disk/disk.h>
 #include <multiboot/multiboot.h>
 #include <fs/fs.h>
+#include <lsc/lsc.h>
 
 __attribute__((section(".exports")))
 void (*kernel_exports[])(const char *, ...) = {
@@ -31,17 +32,19 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
 
     keyboard_init();
     serial_init(COM1);
+
+    lsc_init();
     
     // I sure do love volatiles
     __asm__ volatile ("sti");
 
-    serial_write("Kernel Loaded", COM1);
+    serial_write("Kernel Loaded\n", COM1);
 
     // Access fs.img loaded as a GRUB module
     void* fsimg_addr = NULL;
     uint32_t fsimg_size = 0;
     if (multiboot_find_fsimg(mb_info, &fsimg_addr, &fsimg_size)) {
-        printf("Found fs image at %p, size %u bytes\n", fsimg_addr, fsimg_size);
+        printf("Found fs image at %p, size %x bytes\n", fsimg_addr, fsimg_size);
         fs_use_memdisk(fsimg_addr, fsimg_size);
     } else {
         printf("Fs image not found as a GRUB module, assuming local install\n");
@@ -55,24 +58,11 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
 
     struct FsEntry root = lufs_frompath("");
 
-    printf("Root directory: %s, size: %u bytes, isfile: %d\n", root.name, root.size, root.isfile);
-    struct FsEntry* children = lufs_children(&root);
-    if (!children) {
-        printf("Failed to get children of root directory\n");
-    } else {
-        printf("%s:\nSize: %u\nIsfile: %s\n", children[0].name, children[0].size, children[0].isfile ? "Yes" : "No");
-        printf("Children of root directory:\n");
-        for (int i = 0; children[i].name[0] != '\0'; ++i) {
-            printf(" - %s, size: %u bytes, isfile: %d\n", children[i].name, children[i].size, children[i].isfile);
-        }
-    }
-    serial_write("Test1", COM1);
-    free(children);
-    serial_write("Test2", COM1);
+    serial_write("Test1\n", COM1);
     struct FsEntry test_file = lufs_frompath("/test.txt");
-    serial_write("Test3", COM1);
+    serial_write("Test2\n", COM1);
     if (lufs_isnull(&test_file)) {
-        printf("File not found: doc/welcome.txt\n");
+        printf("File not found: /test.txt\n");
     } else {
         printf("Found file: %s, size: %u bytes, isfile: %d\n", test_file.name, test_file.size, test_file.isfile);
         if (lufs_isfile(&test_file)) {
@@ -84,6 +74,11 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
         }
     }
     free(buffer);
+
+    lsc_load("DBG");
+    lsc_resolve();
+
+    printf("Got Output: %s", lsc_getenv()->line);
     
     while (1) {
         

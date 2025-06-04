@@ -266,22 +266,41 @@ static int read_dir_children(const struct FsEntry* dir, struct FsEntry* out_entr
         *out_count = 0;
         return 0;
     }
+
     uint32_t start_offset = dir->start_block * 512 + dir->start_byte;
     uint32_t end_offset = dir->end_block * 512 + dir->end_byte;
+    if (end_offset < start_offset) {
+        *out_count = 0;
+        return 0;
+    }
     uint32_t total_bytes = end_offset - start_offset + 1;
     uint32_t entry_count = total_bytes / ENTRY_SIZE;
     if (entry_count == 0) {
         *out_count = 0;
         return 0;
     }
-    uint8_t buf[ENTRY_SIZE];
-    uint32_t entries_read = 0;
-    for (uint32_t i = 0; i < entry_count; ++i) {
-        uint32_t offset = start_offset + i * ENTRY_SIZE;
+
+    // Read the whole directory table into a buffer
+    uint8_t table_buf[ENTRY_SIZE * entry_count];
+    uint32_t bytes_read = 0;
+    uint32_t offset = start_offset;
+    while (bytes_read < total_bytes) {
         uint32_t sector = offset / 512;
         uint32_t sector_offset = offset % 512;
-        if (disk_read(sector, buf, 1) != 0) return -1;
-        struct FsEntry* e = (struct FsEntry*)(buf + sector_offset);
+        uint8_t sector_buf[512];
+        if (disk_read(sector, sector_buf, 1) != 0) return -1;
+        uint32_t to_copy = 512 - sector_offset;
+        if (to_copy > total_bytes - bytes_read)
+            to_copy = total_bytes - bytes_read;
+        memcpy(table_buf + bytes_read, sector_buf + sector_offset, to_copy);
+        bytes_read += to_copy;
+        offset += to_copy;
+    }
+
+    // Parse entries
+    uint32_t entries_read = 0;
+    for (uint32_t i = 0; i < entry_count; ++i) {
+        struct FsEntry* e = (struct FsEntry*)(table_buf + i * ENTRY_SIZE);
         if (e->name[0] != 0 && e->name[0] != '?') {
             out_entries[entries_read++] = *e;
         }
