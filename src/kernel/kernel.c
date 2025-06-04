@@ -59,12 +59,13 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
     struct FsEntry root = lufs_frompath("");
 
     serial_write("Test1\n", COM1);
-    struct FsEntry test_file = lufs_frompath("/test.txt");
+    struct FsEntry test_file = lufs_frompath("/doc/welcome.txt");
     serial_write("Test2\n", COM1);
     if (lufs_isnull(&test_file)) {
-        printf("File not found: /test.txt\n");
+        printf("File not found: /doc/welcome.txt\n");
     } else {
         printf("Found file: %s, size: %u bytes, isfile: %d\n", test_file.name, test_file.size, test_file.isfile);
+        printf("struct FsEntry {\n  name = %s;\n  size = %u;\n  isfile = %u;  start_block = %u;  end_block = %u;  start_byte = %x;  end_byte = %x;\n} __attribute__ ((packed))", test_file.name, test_file.size, test_file.isfile, test_file.start_block, test_file.end_block, test_file.start_byte, test_file.end_byte);
         if (lufs_isfile(&test_file)) {
             if (lufs_read(&test_file, (uint8_t*)buffer) == 0) {
                 printf("File content:\n%s\n", buffer);

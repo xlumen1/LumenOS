@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <serial/serial.h>
 
 #define ENTRY_SIZE 49
 #define ENTRIES_PER_SECTOR 9
