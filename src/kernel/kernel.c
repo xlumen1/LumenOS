@@ -55,7 +55,7 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
         printf("Failed to allocate memory for buffer\n");
         return;
     }
-
+    serial_write("Test code update\n", COM1);
     serial_write("Test1\n", COM1);
     struct FsEntry test_file = lufs_frompath("/doc/welcome.txt");
     serial_write("Test2\n", COM1);

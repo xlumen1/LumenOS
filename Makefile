@@ -47,7 +47,7 @@ iso: build
 	$(GRUB) -o $(BUILD)/install.iso $(ISO)
 
 run: iso
-	qemu-system-i386 --cdrom $(BUILD)/os.iso -serial stdio
+	qemu-system-i386 --cdrom $(BUILD)/install.iso -serial stdio
 
 all: build run
 
