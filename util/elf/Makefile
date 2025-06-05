@@ -4,13 +4,10 @@ SRC = test.c
 ELF = test.elf
 HEADER = test_elf.h
 
-all: $(HEADER)
+all: $(ELF)
 
 $(ELF): $(SRC)
 	$(CC) $(CFLAGS) -o $(ELF) $(SRC)
-
-$(HEADER): $(ELF)
-	xxd -i $(ELF) > $(HEADER)
 
 clean:
 	rm -f $(ELF) $(HEADER)
