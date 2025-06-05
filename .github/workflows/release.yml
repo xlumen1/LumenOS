@@ -56,12 +56,12 @@ jobs:
               asset_path: build/kernel.bin
               asset_name: kernel.bin
               asset_content_type: application/octet-stream
-          - name: Upload os.iso to Release
+          - name: Upload install.iso to Release
             uses: actions/upload-release-asset@v1
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             with:
               upload_url: ${{ steps.create_release.outputs.upload_url }}
-              asset_path: build/os.iso
-              asset_name: os.iso
+              asset_path: build/install.iso
+              asset_name: LumenOS(${{ steps.version.outputs.VERSION_FULL }}).iso
               asset_content_type: application/octet-stream

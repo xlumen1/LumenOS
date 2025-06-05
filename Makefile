@@ -38,13 +38,13 @@ $(OUT)/$(KERNEL)/%.o: $(KERNEL)/%.s
 	$(AS) --32 -g $< -o $@
 
 clean:
-	rm -fr $(OUT) $(BUILD)/kernel.bin $(BUILD)/os.iso $(BUILD)/iso/boot/kernel.bin $(BUILD)/iso/boot/fs.img
+	rm -fr $(OUT) $(BUILD)/kernel.bin $(BUILD)/install.iso $(BUILD)/iso/boot/kernel.bin $(BUILD)/iso/boot/fs.img
 
 iso: build
 	mkdir -p $(ISO)/boot/grub
 	cp $(BUILD)/kernel.bin $(ISO)/boot/kernel.bin
 	cp $(OUT)/fs.img $(ISO)/boot/fs.img
-	$(GRUB) -o $(BUILD)/os.iso $(ISO)
+	$(GRUB) -o $(BUILD)/install.iso $(ISO)
 
 run: iso
 	qemu-system-i386 --cdrom $(BUILD)/os.iso -serial stdio

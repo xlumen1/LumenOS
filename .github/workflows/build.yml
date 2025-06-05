@@ -34,7 +34,7 @@ jobs:
       run: |
         mkdir -p release
         cp build/kernel.bin release/
-        cp build/os.iso release/
+        cp build/install.iso release/
 
     - name: Upload Bundle
       uses: actions/upload-artifact@v4
