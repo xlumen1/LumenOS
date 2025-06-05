@@ -151,10 +151,23 @@ int lufs_create(const char* path, uint8_t isfile, char* data, uint32_t size) {
     entry.size = size;
     entry.isfile = isfile;
 
-    // Find free data blocks (naive: first available after entries)
+    // Find free data blocks
     uint32_t needed_blocks = (size + 511) / 512;
-    entry.start_block = 1 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); // Data starts after entries
-    entry.end_block = entry.start_block + needed_blocks - 1;
+    uint32_t first_data_block = 1 + (MAX_ENTRIES / ENTRIES_PER_SECTOR);
+
+    // Scan all entries to find the highest end_block in use
+    struct FsEntry entries[1024]; // TODO: Make this better
+    uint32_t entry_count = 0;
+    uint32_t last_used_block = first_data_block - 1;
+    if (read_entries(entries, &entry_count) == 0) {
+        for (uint32_t i = 0; i < entry_count; ++i) {
+            if (entries[i].isfile && entries[i].end_block > last_used_block) {
+                last_used_block = entries[i].end_block;
+            }
+        }
+    }
+    entry.start_block = last_used_block + 1;
+    entry.end_block = entry.start_block + (needed_blocks ? needed_blocks : 1) - 1;
     entry.start_byte = 0;
     entry.end_byte = (size == 0) ? 0 : ((size - 1) % 512);
 

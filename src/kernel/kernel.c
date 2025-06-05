@@ -17,6 +17,31 @@ void (*kernel_exports[])(const char *, ...) = {
     printf
 };
 
+char* read_file(const char* path)
+{
+    struct FsEntry entry = lufs_frompath(path);
+    if (lufs_isnull(&entry)) {
+        return NULL;
+    }
+
+    if (!lufs_isfile(&entry)) {
+        return NULL;
+    }
+
+    char* buffer = malloc(entry.size + 1);
+    if (!buffer) {
+        return NULL;
+    }
+
+    if (lufs_read(&entry, (uint8_t*)buffer) != 0) {
+        free(buffer);
+        return NULL;
+    }
+
+    buffer[entry.size] = '\0';
+    return buffer;
+}
+
 void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
 {
     vga_init();
@@ -55,23 +80,12 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
         printf("Failed to allocate memory for buffer\n");
         return;
     }
-    serial_write("Test code update\n", COM1);
-    serial_write("Test1\n", COM1);
-    struct FsEntry test_file = lufs_frompath("/doc/welcome.txt");
-    serial_write("Test2\n", COM1);
-    if (lufs_isnull(&test_file)) {
-        printf("File not found: /doc/welcome.txt\n");
-    } else {
-        printf("Found file: %s, size: %u bytes, isfile: %d\n", test_file.name, test_file.size, test_file.isfile);
-        printf("struct FsEntry {\n  name = %s;\n  size = %u;\n  isfile = %u;\n  start_block = %u;\n  end_block = %u;\n  start_byte = %x;\n  end_byte = %x;\n} __attribute__ ((packed))\n", test_file.name, test_file.size, test_file.isfile, test_file.start_block, test_file.end_block, test_file.start_byte, test_file.end_byte);
-        if (lufs_isfile(&test_file)) {
-            if (lufs_read(&test_file, (uint8_t*)buffer) == 0) {
-                printf("File content:\n%s\n", buffer);
-            } else {
-                printf("Failed to read file content\n");
-            }
-        }
-    }
+
+    // lufs_create("/create_test.txt", 1, "Hello, World!", 13);
+    // printf("Created file /create_test.txt\n");
+
+    printf("%s", read_file("/doc/welcome.txt"));
+    
     free(buffer);
     
     while (1) {
