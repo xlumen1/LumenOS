@@ -63,7 +63,7 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
         printf("File not found: /doc/welcome.txt\n");
     } else {
         printf("Found file: %s, size: %u bytes, isfile: %d\n", test_file.name, test_file.size, test_file.isfile);
-        printf("struct FsEntry {\n  name = %s;\n  size = %u;\n  isfile = %u;  start_block = %u;  end_block = %u;  start_byte = %x;  end_byte = %x;\n} __attribute__ ((packed))", test_file.name, test_file.size, test_file.isfile, test_file.start_block, test_file.end_block, test_file.start_byte, test_file.end_byte);
+        printf("struct FsEntry {\n  name = %s;\n  size = %u;\n  isfile = %u;\n  start_block = %u;\n  end_block = %u;\n  start_byte = %x;\n  end_byte = %x;\n} __attribute__ ((packed))\n", test_file.name, test_file.size, test_file.isfile, test_file.start_block, test_file.end_block, test_file.start_byte, test_file.end_byte);
         if (lufs_isfile(&test_file)) {
             if (lufs_read(&test_file, (uint8_t*)buffer) == 0) {
                 printf("File content:\n%s\n", buffer);
@@ -73,11 +73,6 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
         }
     }
     free(buffer);
-
-    lsc_load("DBG");
-    lsc_resolve();
-
-    printf("Got Output: %s", lsc_getenv()->line);
     
     while (1) {
         
