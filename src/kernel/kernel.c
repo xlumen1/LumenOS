@@ -56,8 +56,6 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
         return;
     }
 
-    struct FsEntry root = lufs_frompath("");
-
     serial_write("Test1\n", COM1);
     struct FsEntry test_file = lufs_frompath("/doc/welcome.txt");
     serial_write("Test2\n", COM1);

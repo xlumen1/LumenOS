@@ -69,7 +69,7 @@ int lufs_format() {
     const char magic[4] = {'L','u','F','S'};
     if (write_header(magic, 0) != 0) return -1;
     uint8_t zero[ENTRY_SIZE * ENTRIES_PER_SECTOR] = {0};
-    for (int i = 1; i < 1 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++i) {
+    for (uint32_t i = 1; i < 1 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++i) {
         if (disk_write(i, zero, 1) != 0) return -1;
     }
     return 0;
@@ -88,7 +88,7 @@ static int read_dir_children(const struct FsEntry* dir, struct FsEntry* out_entr
 static int read_entries(struct FsEntry* entries, uint32_t* out_count) {
     uint8_t buf[ENTRY_SIZE * ENTRIES_PER_SECTOR];
     uint32_t count = 0;
-    for (int s = 1; s < 1 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++s) {
+    for (uint32_t s = 1; s < 1 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++s) {
         if (disk_read(s, buf, 1) != 0) return -1;
         for (int i = 0; i < ENTRIES_PER_SECTOR; ++i) {
             struct FsEntry* e = (struct FsEntry*)(buf + i * ENTRY_SIZE);
@@ -112,7 +112,7 @@ static int write_entry(uint32_t idx, struct FsEntry* entry) {
 
 static int find_free_entry(uint32_t* idx) {
     uint8_t buf[ENTRY_SIZE * ENTRIES_PER_SECTOR];
-    for (int s = 1; s < 1 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++s) {
+    for (uint32_t s = 1; s < 1 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++s) {
         if (disk_read(s, buf, 1) != 0) return -1;
         for (int i = 0; i < ENTRIES_PER_SECTOR; ++i) {
             struct FsEntry* e = (struct FsEntry*)(buf + i * ENTRY_SIZE);
@@ -127,7 +127,7 @@ static int find_free_entry(uint32_t* idx) {
 
 static int find_entry(const char* path, struct FsEntry* out_entry, uint32_t* idx) {
     uint8_t buf[ENTRY_SIZE * ENTRIES_PER_SECTOR];
-    for (int s = 1; s < 1 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++s) {
+    for (uint32_t s = 1; s < 1 + (MAX_ENTRIES / ENTRIES_PER_SECTOR); ++s) {
         if (disk_read(s, buf, 1) != 0) return -1;
         for (int i = 0; i < ENTRIES_PER_SECTOR; ++i) {
             struct FsEntry* e = (struct FsEntry*)(buf + i * ENTRY_SIZE);

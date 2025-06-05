@@ -19,7 +19,7 @@ struct Lsc_Info* lsc_getenv();
 // Initialize LSC
 void lsc_init();
 
-void lsc_load(const char* statement);
+void lsc_load(char* statement);
 
 void lsc_resolve();
 

@@ -13,8 +13,8 @@ void lsc_init() {
     gbl_environment = info;
 }
 
-void lsc_load(const char* statement) {
-    *gbl_environment->line = statement;
+void lsc_load(char* statement) {
+    (*gbl_environment).line = statement;
 }
 
 char* lsc_run_command(const char* cmd) {
@@ -36,7 +36,7 @@ char* lsc_run_command(const char* cmd) {
 
 void lsc_resolve() {
     // Step 1: Prune Comments
-    for (uint8_t i = 0; i < LINE_SIZE; i++) {
+    for (uint32_t i = 0; i < LINE_SIZE; i++) {
         if (gbl_environment->line[i] == ';') {
             gbl_environment->line[i] = '\0';
             break;

@@ -1,6 +1,7 @@
 #include "multiboot.h"
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 
 int multiboot_find_fsimg(multiboot_info_t* mb_info, void** out_addr, uint32_t* out_size) {
     if (!mb_info || !(mb_info->flags & (1 << 3)) || mb_info->mods_count == 0)

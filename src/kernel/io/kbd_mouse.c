@@ -186,6 +186,6 @@ void mouse_init() {
 }
 
 void mouse_handler() {
-	struct mouse_info info;
+	// struct mouse_info info;
 
 }
