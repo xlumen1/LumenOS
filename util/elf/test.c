@@ -2,6 +2,11 @@
 typedef void (*func_t)(const char *, ...);
 void _start() {
     func_t* kernel_exports = (func_t*)KERNEL_EXPORTS_ADDR;
-    //kernel_exports[0]("Hello from ELF!\n");
-    while (1) {}
+    __asm__ volatile ( // Exit Syscall
+        "mov $1, %%eax\n\t"
+        "int $0x80\n\t"
+        :
+        :
+        : "%eax"
+    );
 }

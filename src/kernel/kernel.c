@@ -63,31 +63,40 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
     // I sure do love volatiles
     __asm__ volatile ("sti");
 
-    serial_write("Kernel Loaded\n", COM1);
+    serial_write("[KERNEL] Kernel Loaded\n", COM1);
 
     // Access fs.img loaded as a GRUB module
     void* fsimg_addr = NULL;
     uint32_t fsimg_size = 0;
     if (multiboot_find_fsimg(mb_info, &fsimg_addr, &fsimg_size)) {
-        printf("Found fs image at %p, size %x bytes\n", fsimg_addr, fsimg_size);
+        printf("[KERNEL] Found fs image at %p, size %x bytes\n", fsimg_addr, fsimg_size);
         fs_use_memdisk(fsimg_addr, fsimg_size);
     } else {
-        printf("Fs image not found as a GRUB module, assuming local install\n");
-    }
-
-    char* buffer = malloc(1024);
-    if (!buffer) {
-        printf("Failed to allocate memory for buffer\n");
-        return;
+        printf("[KERNEL] Fs image not found as a GRUB module, assuming local install\n");
     }
 
     // lufs_create("/create_test.txt", 1, "Hello, World!", 13);
     // printf("Created file /create_test.txt\n");
 
     printf("%s", read_file("/doc/welcome.txt"));
-    
-    free(buffer);
-    
+
+    printf("[KERNEL] Kernel_exports address: %p\n", kernel_exports);
+
+    // Load and execute an ELF file
+    struct FsEntry elf_entry = lufs_frompath("/bin/test.elf");
+    uint8_t* elf_data = malloc(elf_entry.size);
+    if (lufs_read(&elf_entry, elf_data) == 0) {
+        printf("[KERNEL] Loaded ELF file %s, size %d bytes\n", elf_entry.name, elf_entry.size);
+        if (elf_load(elf_data, elf_entry.size) == 0) {
+            printf("[KERNEL] ELF loaded successfully!\n");
+        } else {
+            printf("[KERNEL] Failed to load ELF file.\n");
+        }
+    } else {
+        printf("[KERNEL] Failed to read ELF file.\n");
+    }
+    free(elf_data);
+
     while (1) {
         
     }
