@@ -50,7 +50,6 @@ make run
 
 To generate a bootable ISO image:
 
-Building ISO
 ```bash
 make iso
 ```
@@ -58,7 +57,6 @@ make iso
 
 To launch the system with GDB for debugging:
 
-Launch With GDB
 ```bash
 make debug
 ```
