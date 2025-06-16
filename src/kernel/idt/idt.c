@@ -126,7 +126,7 @@ void isr_install() {
     idt_set_gate(45, (uint32_t)isr45, 0x08, 0x8E);
     idt_set_gate(46, (uint32_t)isr46, 0x08, 0x8E);
     idt_set_gate(47, (uint32_t)isr47, 0x08, 0x8E);
-    idt_set_gate(128, (uint32_t)isr128, 0x08, 0x8E); // Add this line
+    idt_set_gate(128, (uint32_t)isr128, 0x08, 0x8E);
 }
 
 // Add syscall handler prototype
@@ -135,7 +135,7 @@ extern void *user_exit_return;
 
 void isr_handler(isr_regs_t* regs) {
     if(regs->int_no == 128) {
-        syscall_handler(regs);
+        syscall_dispatch(*regs);
         return;
     }
     if(regs->int_no >= 32 && regs->int_no <= 47) {
@@ -152,18 +152,6 @@ void isr_handler(isr_regs_t* regs) {
         outb(0x20, 0x20);
     } else {
         // \(°-°)/
-    }
-}
-
-void syscall_handler(isr_regs_t* regs) {
-    switch (regs->eax) {
-        case 1: // SYS_exit
-            if (user_exit_return) {
-                goto *user_exit_return; // GCC labels-as-values extension
-            }
-            break;
-        default:
-            break;
     }
 }
 

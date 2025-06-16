@@ -57,9 +57,6 @@ int elf_load(const uint8_t *elf_data, size_t elf_size) {
 
     printf("[ELF] Jumping to entry point: %x\n", (unsigned)ehdr->e_entry);
 
-    // Set the label pointer to the label
-    user_exit_return = &&user_exit_label;
-
     ((void (*)())ehdr->e_entry)();
 user_exit_label:
     printf("[ELF] Returned from entry point!\n");
