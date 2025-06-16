@@ -55,7 +55,39 @@ int elf_load(const uint8_t *elf_data, size_t elf_size) {
         }
     }
 
-    printf("[ELF] Jumping to entry point: %x\n", (unsigned)ehdr->e_entry);
+    // Set up the stack
+    void* user_stack = malloc(0x4000); // 16KB stack
+    if (!user_stack) {
+        printf("[ELF] Error: Failed to allocate user stack\n");
+        return -1;
+    }
+
+    uintptr_t stack_ptr = (uintptr_t)user_stack + 0x4000;
+    const char *progname = "test.elf";
+    size_t progname_len = strlen(progname) + 1; // +1 for null terminator
+    stack_ptr -= progname_len;
+    memcpy((void *)stack_ptr, progname, progname_len); // Copy program name to stack
+
+    stack_ptr &= 0x3; // Align to 4 bytes
+
+    // Argv
+    char *argv[] = {(char *)stack_ptr, NULL}; // Null-terminated argv array
+    stack_ptr -= sizeof(argv);
+    memcpy((void *)stack_ptr, argv, sizeof(argv)); // Copy argv to stack
+
+    // Envp
+    stack_ptr -= sizeof(char*);
+    *((char**)stack_ptr) = NULL; // Null-terminated envp
+
+    // Argc
+    stack_ptr -= sizeof(int);
+    *((int*)stack_ptr) = 1; // argc = 1 (only the program name)
+
+    __asm__ volatile (
+        "mov %0, %%esp\n\t" :: "r"(user_stack + 0x4000) // Set stack pointer to top of stack
+    );
+
+    printf("[ELF] Jumping to entry point: %x with user-mode stack at %x\n", (unsigned)ehdr->e_entry, (unsigned)user_stack);
 
     ((void (*)())ehdr->e_entry)();
 user_exit_label:

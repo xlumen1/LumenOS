@@ -52,7 +52,7 @@ run: iso
 all: build run
 
 debug: iso
-	qemu-system-i386 -s -S --cdrom $(BUILD)/os.iso &
+	qemu-system-i386 -s -S --cdrom $(BUILD)/install.iso &
 	gdb $(BUILD)/kernel.bin --silent -ex "target remote localhost:1234"
 
 fs: $(OUT)/fs.img
