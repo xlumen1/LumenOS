@@ -12,11 +12,6 @@
 #include <fs/fs.h>
 #include <lsc/lsc.h>
 
-__attribute__((section(".exports")))
-void (*kernel_exports[])(const char *, ...) = {
-    printf
-};
-
 char* read_file(const char* path)
 {
     struct FsEntry entry = lufs_frompath(path);
@@ -79,8 +74,6 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
     // printf("Created file /create_test.txt\n");
 
     printf("%s", read_file("/doc/welcome.txt"));
-
-    printf("[KERNEL] Kernel_exports address: %p\n", kernel_exports);
 
     // Load and execute an ELF file
     struct FsEntry elf_entry = lufs_frompath("/bin/test.elf");

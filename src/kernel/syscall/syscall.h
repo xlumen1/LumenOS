@@ -18,4 +18,6 @@ void sys_write(uint32_t fd, const char* buf, size_t count);
 void sys_open(const char* filename, int32_t flags, uint32_t mode);
 void sys_close(uint32_t fd);
 
+void sys_dbg();
+
 #endif

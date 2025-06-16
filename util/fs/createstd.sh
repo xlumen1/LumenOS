@@ -18,4 +18,13 @@ python3 ./mkfs.py LumenStandardFS-main fs.img
 
 rm -rf LumenStandardFS-main
 echo "Standard filesystem created as fs.img"
+
+python3 ./rdfs.py fs.img --extract root
+cd ../elf
+make clean
+make all
+cp ./test.elf ../fs/root/bin/test.elf
+cd ../fs
+python3 ./mkfs.py root fs.img
 python3 ./rdfs.py fs.img
+rm -rf root

@@ -25,6 +25,11 @@ void syscall_dispatch(isr_regs_t regs) {
     
     case 3:
         sys_read((uint32_t)regs.ebx, (char*)regs.ecx, (size_t)regs.edx);
+        break;
+    
+    case 255:
+        sys_dbg();
+        break;
     
     default:
         break;
