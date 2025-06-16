@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -nostdlib -static -ffreestanding -m32 -Wall -Wl,-N -T link.ld -e _start
+CFLAGS = -nostdlib -static -ffreestanding -m32 -Wall -Wl,-N -T link.ld -e _start -g
 SRC = test.c
 ELF = test.elf
 HEADER = test_elf.h
