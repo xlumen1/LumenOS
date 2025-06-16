@@ -13,6 +13,8 @@ void elf_jump(Elf32_Ehdr_t *ehdr) {
         return -1;
     }
 
+    uintptr_t old_stack_pointer;
+    __asm__ volatile ("mov %%esp, %0" : "=r"(old_stack_pointer));
     uintptr_t stack_ptr = (uintptr_t)user_stack + 0x4000;
     const char *progname = "test.elf";
     size_t progname_len = strlen(progname) + 1; // +1 for null terminator
@@ -41,6 +43,8 @@ void elf_jump(Elf32_Ehdr_t *ehdr) {
     printf("[ELF] Jumping to entry point: %x with user-mode stack at %x\n", (unsigned)ehdr->e_entry, (unsigned)user_stack);
 
     ((void (*)())ehdr->e_entry)();
+    __asm__ volatile ("mov %0, %%esp" :: "r"(old_stack_pointer));
+    free(user_stack);
 }
 
 int elf_load(const uint8_t *elf_data, size_t elf_size) {

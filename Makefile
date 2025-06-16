@@ -53,7 +53,7 @@ all: build run
 
 debug: iso
 	qemu-system-i386 -s -S --cdrom $(BUILD)/install.iso &
-	gdb $(BUILD)/kernel.bin --silent -ex "target remote localhost:1234" -ex "add-symbol-table ./util/elf/test.eft"
+	gdb $(BUILD)/kernel.bin --silent -ex "target remote localhost:1234" -ex "add-symbol-file ./util/elf/test.elf"
 
 fs: $(OUT)/fs.img
 
