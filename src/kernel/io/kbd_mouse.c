@@ -3,6 +3,8 @@
 uint8_t keyboard_shift;
 
 char km1[256] = {0};
+char kbd_buffer[256] = {0};
+uint8_t kbd_buffer_idx = 0;
 
 void keyboard_init() {
     km1[0x02] = '1';
@@ -105,7 +107,29 @@ char apply_shift(char c) {
     if (is_letter(c))
         return c - 0x20;
     if (is_number(c))
-        return c - 0x10;
+        switch (c - 0x30)
+        {
+        case 0:
+            return ')';
+        case 1:
+            return '!';
+        case 2:
+            return '@';
+        case 3:
+            return '#';
+        case 4:
+            return '$';
+        case 5:
+            return '%';
+        case 6:
+            return '^';
+        case 7:
+            return '&';
+        case 8:
+            return '*';
+        case 9:
+            return '(';
+        }
     return 0;
 }
 
@@ -176,9 +200,13 @@ void keyboard_handler() {
     uint8_t scancode = inb(0x60);
     char c = keyboard_get_char(scancode);
     if (c)
-        vga_put(c, VGA_COLOR(VGA_WHITE, VGA_BLACK));
+        kbd_buffer[kbd_buffer_idx++] = c;
 
     outb(0x20, 0x20);
+}
+
+char keyboard_getc() {
+    return kbd_buffer[kbd_buffer_idx--];
 }
 
 void mouse_init() {

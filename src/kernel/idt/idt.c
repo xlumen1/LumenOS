@@ -135,7 +135,7 @@ extern void *user_exit_return;
 
 void isr_handler(isr_regs_t* regs) {
     if(regs->int_no == 128) {
-        syscall_dispatch(*regs);
+        syscall_dispatch(regs);
         return;
     }
     if(regs->int_no >= 32 && regs->int_no <= 47) {

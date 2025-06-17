@@ -16,15 +16,19 @@ void syscall_set_exit_handler(void (*handler)(int32_t)) {
     exit_return_handler = handler;
 }
 
-void syscall_dispatch(isr_regs_t regs) {
-    switch (regs.eax)
+void syscall_dispatch(isr_regs_t* regs) {
+    switch (regs->eax)
     {
     case 1: // SYS_EXIT
-        sys_exit((int32_t)regs.ebx);
+        sys_exit((int32_t)regs->ebx);
         break;
     
-    case 3:
-        sys_read((uint32_t)regs.ebx, (char*)regs.ecx, (size_t)regs.edx);
+    case 3: // SYS_READ
+        sys_read((uint32_t)regs->ebx, (char*)regs->ecx, (size_t)regs->edx);
+        break;
+    
+    case 4: // SYS_WRITE
+        regs->eax = sys_write((uint32_t)regs->ebx, (const char*)regs->ecx, (size_t)regs->edx);
         break;
     
     case 255:

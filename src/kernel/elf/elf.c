@@ -36,13 +36,17 @@ void elf_jump(Elf32_Ehdr_t *ehdr) {
     stack_ptr -= sizeof(int);
     *((int*)stack_ptr) = 1; // argc = 1 (only the program name)
 
+    stack_ptr -= 4;
+    *((uint32_t*)stack_ptr) = (uint32_t)&&elf_return_address;
+
     __asm__ volatile (
-        "mov %0, %%esp\n\t" :: "r"(user_stack + 0x4000) // Set stack pointer to top of stack
+        "mov %0, %%esp\n\t" :: "r"(user_stack) // Set stack pointer to top of stack
     );
 
     printf("[ELF] Jumping to entry point: %x with user-mode stack at %x\n", (unsigned)ehdr->e_entry, (unsigned)user_stack);
 
     ((void (*)())ehdr->e_entry)();
+elf_return_address:
     __asm__ volatile ("mov %0, %%esp" :: "r"(old_stack_pointer));
     free(user_stack);
 }
