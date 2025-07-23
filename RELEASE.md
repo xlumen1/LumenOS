@@ -1,9 +1,8 @@
 - Major code restructure
 - Various bug fixes
-- Changed license tp CC0-1.0
+- Changed license to Unlicense
 - Better keyboard support
-- New cursor
-- Functional Scrolling
 - Designed and Implemented LuFS filesystem
-- Made MKFS and RDFS utilities
-- A functional LuFS file system
+- Added grub splashscreen
+- Got working ELF loader and runner
+- Small subset of posix-semicomplient syscalls added
