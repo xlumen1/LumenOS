@@ -29,6 +29,7 @@ Before building, install these:
 - `mtools`
 - `gdb`
 - `unzip`
+- `python3`
 
 ## Building LumenOS
 
