@@ -28,7 +28,6 @@ Before building, install these:
 - `qemu-system-i386`
 - `mtools`
 - `gdb`
-- `unzip`
 - `python3`
 
 ## Building LumenOS

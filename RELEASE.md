@@ -1,8 +1,7 @@
 - Major code restructure
 - Various bug fixes
 - Changed license to Unlicense
-- Better keyboard support
 - Designed and Implemented LuFS filesystem
 - Added grub splashscreen
 - Got working ELF loader and runner
-- Small subset of posix-semicomplient syscalls added
+- Tiny subset of posix-semicomplient syscalls added

@@ -16,7 +16,7 @@ jobs:
           - name: Install build dependencies
             run: |
               sudo apt-get update
-              sudo apt-get install -y build-essential gcc-multilib qemu-system-i386 xorriso mtools grub-pc-bin gdb
+              sudo apt-get -y install $(cat README.md | grep "^- \`" | sed -n "s/^- \`\(.*\)\`$/\1/p" | paste -sd' ')
 
           - name: Build kernel
             run: |
