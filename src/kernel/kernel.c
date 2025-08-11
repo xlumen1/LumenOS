@@ -56,6 +56,7 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
     lsc_init();
     
     // I sure do love volatiles
+    // Haha GCC goes BRRRRRRRRR
     __asm__ volatile ("sti");
 
     serial_write("[KERNEL] Kernel Loaded\n", COM1);

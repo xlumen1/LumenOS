@@ -29,6 +29,5 @@ static inline int sys_read(int fd, char* buf, size_t count) {
 int main(int argc, char** argv) {
     const char* msg = "Hello, world!\n";
     sys_write(1, msg, 14);
-
     return 0;
 }
