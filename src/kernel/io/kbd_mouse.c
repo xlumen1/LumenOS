@@ -1,10 +1,16 @@
 #include "io.h"
+#include <stdio.h>
 
 uint8_t keyboard_shift;
 
-char km1[256] = {0};
-char kbd_buffer[256] = {0};
-uint8_t kbd_buffer_idx = 0;
+// scancode -> char map
+static char km1[256] = {0};
+
+// keyboard circular buffer
+#define KBD_BUFFER_SIZE 128
+static char kbd_buffer[KBD_BUFFER_SIZE];
+static volatile uint8_t kbd_head = 0; // next write position
+static volatile uint8_t kbd_tail = 0; // next read position
 
 void keyboard_init() {
     km1[0x02] = '1';
@@ -198,15 +204,31 @@ char keyboard_get_char(uint8_t scancode) {
 
 void keyboard_handler() {
     uint8_t scancode = inb(0x60);
+    char buf[9];
+    itoa(scancode, buf, 16);
     char c = keyboard_get_char(scancode);
-    if (c)
-        kbd_buffer[kbd_buffer_idx++] = c;
+    //serial_write(buf, COM1);
+    if (c) {
+        uint8_t next = (kbd_head + 1) % KBD_BUFFER_SIZE;
+        if (next != kbd_tail) {
+            kbd_head = next;
+        }
+    }
 
     outb(0x20, 0x20);
 }
 
 char keyboard_getc() {
-    return kbd_buffer[kbd_buffer_idx--];
+    // if empty, return 0
+    if (kbd_head == kbd_tail)
+        return 0;
+
+    __asm__ volatile ("cli");
+    char c = kbd_buffer[kbd_tail];
+    kbd_tail = (kbd_tail + 1) % KBD_BUFFER_SIZE;
+    __asm__ volatile ("sti");
+
+    return c;
 }
 
 void mouse_init() {

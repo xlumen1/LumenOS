@@ -10,7 +10,6 @@
 #include <disk/disk.h>
 #include <multiboot/multiboot.h>
 #include <fs/fs.h>
-#include <lsc/lsc.h>
 
 char* read_file(const char* path)
 {
@@ -52,8 +51,6 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
 
     keyboard_init();
     serial_init(COM1);
-
-    lsc_init();
     
     // I sure do love volatiles
     // Haha GCC goes BRRRRRRRRR
@@ -76,22 +73,11 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
 
     printf("%s", read_file("/doc/welcome.txt"));
 
-    // Load and execute an ELF file
-    struct FsEntry elf_entry = lufs_frompath("/bin/test.elf");
-    uint8_t* elf_data = malloc(elf_entry.size);
-    if (lufs_read(&elf_entry, elf_data) == 0) {
-        printf("[KERNEL] Loaded ELF file %s, size %d bytes\n", elf_entry.name, elf_entry.size);
-        if (elf_load(elf_data, elf_entry.size) == 0) {
-            printf("[KERNEL] ELF loaded successfully!\n");
-        } else {
-            printf("[KERNEL] Failed to load ELF file.\n");
-        }
-    } else {
-        printf("[KERNEL] Failed to read ELF file.\n");
-    }
-    free(elf_data);
-
     while (1) {
-        
+        keyboard_handler();
+        char c = keyboard_getc();
+        if (c != '\0') {
+            printf("%c", c);
+        }
     }
 }
