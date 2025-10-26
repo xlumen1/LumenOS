@@ -1,0 +1,6 @@
+- Fix ASM Formatting
+- Add C Formating
+- Fix ELF Execution
+- Finish LuFS
+- Add true disk interaction
+- Get keyboard drivers working
