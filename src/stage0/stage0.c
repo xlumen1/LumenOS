@@ -56,22 +56,28 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
     // Haha GCC goes BRRRRRRRRR
     __asm__ volatile ("sti");
 
-    serial_write("[KERNEL] Kernel Loaded\n", COM1);
+    serial_write("[STAGE0] Kernel Loaded\n", COM1);
 
     // Access fs.img loaded as a GRUB module
     void* fsimg_addr = NULL;
     uint32_t fsimg_size = 0;
     if (multiboot_find_fsimg(mb_info, &fsimg_addr, &fsimg_size)) {
-        printf("[KERNEL] Found fs image at %p, size %x bytes\n", fsimg_addr, fsimg_size);
+        printf("[STAGE0] Found fs image at %p, size %x bytes\n", fsimg_addr, fsimg_size);
         fs_use_memdisk(fsimg_addr, fsimg_size);
     } else {
-        printf("[KERNEL] Fs image not found as a GRUB module, assuming local install\n");
+        printf("[STAGE0] Fs image not found as a GRUB module, assuming local install\n");
     }
 
-    // lufs_create("/create_test.txt", 1, "Hello, World!", 13);
-    // printf("Created file /create_test.txt\n");
+    lufs_create("/create_test.txt", 1, "Hello, World!", 14);
+    printf("Created file /create_test.txt\n");
 
     printf("%s", read_file("/doc/welcome.txt"));
+    char* buf = malloc(20);
+    buf = read_file("/create_test.txt");
+    serial_write(buf, COM1);
+    free(buf);
+
+    printf("\n\n%s", buf);
 
     while (1) {
         keyboard_handler();

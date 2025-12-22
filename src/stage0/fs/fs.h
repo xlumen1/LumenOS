@@ -28,9 +28,9 @@ int lufs_mount(); // Mount by loading data, verifying
 
 // CRUD OPS
 
-int lufs_create(const char* path, uint8_t isfile, char* data, uint32_t size); // Create a new entry
+int lufs_create(const char* path, uint8_t isfile, uint8_t* data, uint32_t size); // Create a new entry
 int lufs_read(struct FsEntry* file, uint8_t* data);  // Read entire file into memory
-int lufs_update(struct FsEntry* file, uint8_t* data); // Write entire file
+int lufs_update(struct FsEntry* file, uint8_t* data, uint32_t new_size); // Write entire file
 int lufs_delete(struct FsEntry* entry); // Delete entry and data (or child entries recursively)
 
 // UTIL OPS

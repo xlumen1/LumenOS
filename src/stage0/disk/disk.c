@@ -24,7 +24,7 @@
 
 static disk_info_t info = {
     .sector_count = 1024 * 1024, // .5 GiB
-    .sector_size = 512           // Standard sector size
+    .sector_size = 512 
 };
 
 static void ata_wait_bsy() {
@@ -35,9 +35,7 @@ static void ata_wait_drq() {
     while (!(inb(ATA_REG_STATUS) & ATA_SR_DRQ));
 }
 
-void disk_init() {
-    // For future use with not ATI PIO
-}
+void disk_init() {}
 
 int disk_read(uint32_t lba, uint8_t* buffer, uint32_t count) {
     if (!buffer || lba + count > info.sector_count) return -1;
@@ -54,7 +52,7 @@ int disk_read(uint32_t lba, uint8_t* buffer, uint32_t count) {
         ata_wait_bsy();
         ata_wait_drq();
 
-        // Read 256 words (512 bytes)
+        // Read 256 words
         for (uint32_t i = 0; i < 256; ++i) {
             uint16_t data = inw(ATA_REG_DATA);
             buffer[sector * info.sector_size + i * 2] = data & 0xFF;
@@ -79,7 +77,7 @@ int disk_write(uint32_t lba, const uint8_t* buffer, uint32_t count) {
         ata_wait_bsy();
         ata_wait_drq();
 
-        // Write 256 words (512 bytes)
+        // Write 256 words
         for (uint32_t i = 0; i < 256; ++i) {
             uint16_t data = buffer[sector * info.sector_size + i * 2] |
                             (buffer[sector * info.sector_size + i * 2 + 1] << 8);

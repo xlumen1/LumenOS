@@ -107,6 +107,7 @@ def makefs():
 
     # Write header
     mem_disk = struct.pack("<4sI", b"LuFS", len(entries))
+    print("Writing", len(entries), "total entries");
     mem_disk += b'\x00' * (SECTOR_SIZE - struct.calcsize("<4sI"))
 
     # Write directory tables

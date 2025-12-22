@@ -7,25 +7,25 @@ LD := ld
 GRUB := grub-mkrescue
 
 # Directories
-KERNEL := src/kernel
+STAGEZERO := src/stage0
 BUILD := build
 STDLIB := src/stdlib
 OUT := $(BUILD)/out
 ISO := $(BUILD)/iso
 
 # Flags
-CCFLAGS := -m32 --static -ffreestanding -c -g -nostdinc -I$(KERNEL) -I$(STDLIB) -Wextra -Wall
+CCFLAGS := -m32 --static -ffreestanding -c -g -nostdinc -I$(STAGEZERO) -I$(STDLIB) -Wextra -Wall
 LDFLAGS := -m elf_i386 -T $(BUILD)/linker.ld -static -nostdlib -g
 
 # Build files
-SRC :=  $(shell find $(KERNEL) -type f -name "*.c") $(shell find $(STDLIB) -type f -name "*.c") $(shell find $(KERNEL) -type f -name "*.s")
+SRC :=  $(shell find $(STAGEZERO) -type f -name "*.c") $(shell find $(STDLIB) -type f -name "*.c") $(shell find $(STAGEZERO) -type f -name "*.s")
 OBJ :=  $(patsubst %.c,$(OUT)/%.o,$(filter %.c,$(SRC))) \
     	$(patsubst %.s,$(OUT)/%.o,$(filter %.s,$(SRC)))
 
 build: $(OBJ) fs
 	$(LD) $(LDFLAGS) -o $(BUILD)/kernel.bin $(OBJ)
 
-$(OUT)/$(KERNEL)/%.o: $(KERNEL)/%.c
+$(OUT)/$(STAGEZERO)/%.o: $(STAGEZERO)/%.c
 	mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) $< -o $@
 
@@ -33,7 +33,7 @@ $(OUT)/$(STDLIB)/%.o: $(STDLIB)/%.c
 	mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) $< -o $@
 
-$(OUT)/$(KERNEL)/%.o: $(KERNEL)/%.s
+$(OUT)/$(STAGEZERO)/%.o: $(STAGEZERO)/%.s
 	mkdir -p $(dir $@)
 	$(AS) --32 -g $< -o $@
 

@@ -27,4 +27,4 @@ push %eax        # Multiboot magic
 call kmain
 
 hlt
-jmp .
+jmp . # Fallback
