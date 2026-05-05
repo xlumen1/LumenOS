@@ -6,35 +6,11 @@
 #include <io/io.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <elf/elf.h>
 #include <disk/disk.h>
 #include <multiboot/multiboot.h>
-#include <fs/fs.h>
+#include <fat/fat32.h>
 
-char* read_file(const char* path)
-{
-    struct FsEntry entry = lufs_frompath(path);
-    if (lufs_isnull(&entry)) {
-        return NULL;
-    }
-
-    if (!lufs_isfile(&entry)) {
-        return NULL;
-    }
-
-    char* buffer = malloc(entry.size + 1);
-    if (!buffer) {
-        return NULL;
-    }
-
-    if (lufs_read(&entry, (uint8_t*)buffer) != 0) {
-        free(buffer);
-        return NULL;
-    }
-
-    buffer[entry.size] = '\0';
-    return buffer;
-}
+#define panic(e) printf("[STAGE0] %s\n[STAGE0] KERNEL PANIK!", e); return;
 
 void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
 {
@@ -56,28 +32,41 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
     // Haha GCC goes BRRRRRRRRR
     __asm__ volatile ("sti");
 
-    serial_write("[STAGE0] Kernel Loaded\n", COM1);
+    serial_write("[STAGE0] Stage 0 Initialized\n", COM1);
+    if (multiboot_magic != 0x2BADB002) {
+        printf("[STAGE0] Multiboot Magic Invalid!\n");
+        printf("[STAGE0] KERNEL PANIC!");
+        return;
+    }
 
     // Access fs.img loaded as a GRUB module
     void* fsimg_addr = NULL;
     uint32_t fsimg_size = 0;
-    if (multiboot_find_fsimg(mb_info, &fsimg_addr, &fsimg_size)) {
+    if (multiboot_find_module(mb_info, &fsimg_addr, &fsimg_size, "")) {
         printf("[STAGE0] Found fs image at %p, size %x bytes\n", fsimg_addr, fsimg_size);
         fs_use_memdisk(fsimg_addr, fsimg_size);
     } else {
-        printf("[STAGE0] Fs image not found as a GRUB module, assuming local install\n");
+        panic("Fs image not found as a GRUB module");
     }
 
-    lufs_create("/create_test.txt", 1, "Hello, World!", 14);
-    printf("Created file /create_test.txt\n");
+    fat32_fs_t* fs;
+    fat32_file_t root;
+    fat32_file_t file;  
 
-    printf("%s", read_file("/doc/welcome.txt"));
-    char* buf = malloc(20);
-    buf = read_file("/create_test.txt");
-    serial_write(buf, COM1);
-    free(buf);
-
-    printf("\n\n%s", buf);
+    // Mount FAT32
+    if (fat32_mount(0, &fs) != 0) {
+        panic("FAT mount failed");
+    }
+    
+    if (fat32_open_root(fs, &root) != 0) {
+        panic("Open root failed");
+    }
+    
+    // 8.3 uppercase & space padded
+    if (fat32_find(fs, &root, "STAGE1  BIN", &file) != 0) {
+        panic("file not found");
+    }
+        
 
     while (1) {
         keyboard_handler();
