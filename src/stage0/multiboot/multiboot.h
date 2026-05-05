@@ -22,6 +22,6 @@ typedef struct {
 } multiboot_info_t;
 
 // Finds the fs.img module, returns pointer and size via out params, returns 1 if found, 0 if not
-int multiboot_find_fsimg(multiboot_info_t* mb_info, void** out_addr, uint32_t* out_size);
+int multiboot_find_module(multiboot_info_t* mb_info, void** out_addr, uint32_t* out_size, const char* name);
 
 #endif
