@@ -3,7 +3,6 @@
 
 #include "isr.h"
 #include <io/io.h>
-#include <syscall/syscall.h>
 
 // Macros
 
