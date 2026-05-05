@@ -10,7 +10,7 @@
 #include <multiboot/multiboot.h>
 #include <fat/fat32.h>
 
-#define panic(e) printf("[STAGE0] %s\n[STAGE0] KERNEL PANIK!", e); return;
+#define panic(e) printf("[STAGE0] %s\n[STAGE0] KERNEL PANIC!", e); return;
 
 void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
 {
@@ -34,9 +34,7 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
 
     serial_write("[STAGE0] Stage 0 Initialized\n", COM1);
     if (multiboot_magic != 0x2BADB002) {
-        printf("[STAGE0] Multiboot Magic Invalid!\n");
-        printf("[STAGE0] KERNEL PANIC!");
-        return;
+        panic("Multiboot Magic Invalid!");
     }
 
     // Access fs.img loaded as a GRUB module
@@ -64,7 +62,7 @@ void kmain(uint32_t multiboot_magic, multiboot_info_t* mb_info)
     
     // 8.3 uppercase & space padded
     if (fat32_find(fs, &root, "STAGE1  BIN", &file) != 0) {
-        panic("file not found");
+        panic("File not found");
     }
         
 
